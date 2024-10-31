@@ -18,3 +18,7 @@ Clase Hacking 31-10-2024 <----Como evadir un firewall---->
       --min-rate
    
   --mtu --> minimo 8 + la suma del minimo de nmap = 20
+
+
+savitar nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn <IP>
+        nmap -sCV -p80,443,21 <IP>
