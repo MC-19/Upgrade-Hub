@@ -6,3 +6,15 @@ Clase Hacking 30-10-2024
 
 Clase Hacking 31-10-2024 <----Como evadir un firewall---->
   NmapFirewallEvasion <---most comon comnands--->
+    TOP EVASION
+      --source-port 
+       
+      -D
+       
+      -spoof-mac
+       
+      -sS
+       
+      --min-rate
+   
+  --mtu --> minimo 8 + la suma del minimo de nmap = 20
