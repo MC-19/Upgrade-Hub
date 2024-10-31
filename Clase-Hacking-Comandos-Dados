@@ -1,0 +1,8 @@
+Clase Hacking 30-10-2024
+
+ping
+arp-scan
+Nmap -vv -sV -sC -O -p 445
+cd /usr/share/nmap/scripts para ver todos los scripts de nmap
+
+Clase Hacking 31-10-2024 <----Como evadir un firewall---->
