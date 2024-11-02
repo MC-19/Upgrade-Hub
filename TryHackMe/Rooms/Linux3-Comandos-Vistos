@@ -4,3 +4,54 @@ wget http://10.10.155.202:8000/.flag.txt
 
 Transferring Files From Your Host - SCP (SSH)
   No lo llego a usar en el ejemplo de la room
+
+Viewing Processes
+  tryhackme@linux3:~$ ps
+      PID TTY          TIME CMD
+     1099 pts/0    00:00:00 bash
+     1422 pts/0    00:00:00 ps
+
+  ps aux para ver todos los procesos
+  otro comando es top que se ve como mas claro y en forma de map ls
+
+Managing Processes
+  SIGTERM - Kill the process, but allow it to do some cleanup tasks beforehand
+  SIGKILL - Kill the process - doesn't do any cleanup after the fact
+  SIGSTOP - Stop/suspend a process
+
+
+Getting Processes/Services to Start on Boot
+  systemctl -- this command allows us to interact with the systemd process/daemon. 
+    systemctl [option] [service]
+
+  For example, to tell apache to start up, we'll use systemctl start apache2. 
+  Seems simple enough, right? Same with if we wanted to stop apache, we'd just replace the [option] with stop (instead of start like we provided)
+  
+  We can do four options with systemctl:
+  
+  Start
+  Stop
+  Enable
+  Disable
+
+
+Foregrounding a process
+  With our process backgrounded using either Ctrl + Z or the & operator, we can use fg to bring this back to focus like below, 
+  where we can see the fg command is being used to bring the background process back into use on the terminal, where the output of the script is now returned to us.
+
+
+crontab
+  A crontab is simply a special file with formatting that is recognised by the cron process to execute each line step-by-step. Crontabs require 6 specific values:
+
+Value	Description
+MIN	  What minute to execute at
+HOUR	What hour to execute at
+DOM	  What day of the month to execute at
+MON	  What month of the year to execute at
+DOW	  What day of the week to execute at
+CMD	  The actual command that will be executed.
+
+Managing Your Repositories (Adding and Removing)
+  apt comando
+
+
