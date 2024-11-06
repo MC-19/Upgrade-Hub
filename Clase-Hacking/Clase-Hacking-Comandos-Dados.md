@@ -133,3 +133,13 @@ Stealth Scan (-sS): Esta técnica es una de las más utilizadas para realizar es
 •
 min-rate (--min-rate): Esta técnica permite al usuario controlar la velocidad de los paquetes enviados para evitar la detección del Firewall. El comando --min-rate permite al usuario reducir la velocidad de los paquetes enviados para evitar ser detectado por el Firewall.
 Es importante destacar que, además de las técnicas de evasión mencionadas anteriormente, existen muchas otras opciones en Nmap que pueden ser utilizadas para realizar pruebas de penetración efectivas y evadir la detección del Firewall. Sin embargo, las técnicas que hemos mencionado son algunas de las más populares y ampliamente utilizadas por los profesionales de seguridad para superar los obstáculos que presentan los Firewalls en la realización de pruebas de penetración.
+
+**TOP EVASION**
+
+- -source-port
+- D
+- spoof-mac
+- sS
+- -min-rate
+
+Metasploit (msfconsole)
