@@ -2,29 +2,22 @@
 # Clase de Hacking
 
 ## Clase del 30-10-2024
-  Recolección de información / Reconocimiento
 
-  Google Dorks
+### Recolección de Información / Reconocimiento
+- **Google Dorks**: Técnicas para realizar búsquedas avanzadas en Google y descubrir información específica.
+- **Shodan**: Motor de búsqueda para dispositivos conectados a internet.
+- **Robtex**: Herramienta de análisis de red y DNS.
+- **DNSDumpster**: Herramienta para obtener información de DNS y mapa de red.
+- **nslookup**: Comando para consultas de DNS.
+- **dig**: Alternativa avanzada a `nslookup` para consultas de DNS.
+- **Maltego**: Herramienta de análisis de inteligencia y conexiones entre nodos.
+- **The Harvester**: Herramienta para recolectar correos y nombres de dominio.
 
-Shodan
-
-Robtex
-
-DNSDumpster
-
-Nslookup
-
-Dig
-
-Maltego
-
-The Harvester
-
-
-Enumeración / Escaneo
-### Comandos Básicos
+### Enumeración / Escaneo
 - `ping`: Comando para comprobar la conectividad con un dispositivo en la red.
 - `arp-scan`: Escaneo de red para descubrir dispositivos conectados.
+- **AutoRecon**: Herramienta de escaneo automático de red y vulnerabilidades.
+- **Netdiscover**: Herramienta para descubrir hosts en la red local.
 - `nmap -vv -sV -sC -O -p 445`: Escaneo con Nmap para detección de servicios, versiones y sistema operativo en el puerto 445.
 - Navegar a los scripts de Nmap:
   ```bash
@@ -34,12 +27,22 @@ Enumeración / Escaneo
 ## Clase del 31-10-2024 - Cómo Evadir un Firewall
 
 ### Técnicas de Evasión en Nmap
-- **`--source-port`**: Especifica un puerto de origen para evadir ciertos firewalls.
-- **`-D`**: Genera tráfico falso con direcciones IP falsas (decoys).
-- **`--spoof-mac`**: Cambia la dirección MAC de origen.
-- **`-sS`**: SYN-Scan, realiza solo el SYN del Three-Way Handshake.
-- **`--min-rate`**: Define el mínimo de paquetes enviados por segundo.
-- **`--mtu`**: Ajusta el tamaño de la unidad de transmisión (mínimo 8 + suma mínima de Nmap = 20).
+- **MTU (`--mtu`)**: Ajusta el tamaño de los paquetes enviados para evitar detección, configurando la unidad de transmisión máxima.
+- **Data Length (`--data-length`)**: Ajusta manualmente la longitud de los datos para hacerlos lo suficientemente cortos y evitar detección.
+- **Source Port (`--source-port`)**: Configura manualmente el puerto de origen para evadir detección, permitiendo seleccionar un puerto específico.
+- **Decoy (`-D`)**: Envía paquetes falsos para confundir los sistemas de detección y ocultar actividad real.
+- **Fragmented (`-f`)**: Fragmenta los paquetes para evitar que el firewall reconozca el tráfico como escaneo.
+- **Spoof-Mac (`--spoof-mac`)**: Cambia la dirección MAC para evitar detección.
+- **Stealth Scan (`-sS`)**: Realiza un escaneo SYN que evita establecer una conexión completa, ayudando a evadir detección.
+- **Min-Rate (`--min-rate`)**: Controla la velocidad de los paquetes enviados, permitiendo disminuir el ritmo para evadir detección.
+
+#### Comandos de Evasión Populares
+- **Top Evasion**:
+  - `--source-port`
+  - `-D`
+  - `--spoof-mac`
+  - `-sS`
+  - `--min-rate`
 
 #### Ejemplo de Comando Evasivo
 ```bash
@@ -47,40 +50,37 @@ nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn <IP>
 nmap -sCV -p80,443,21 <IP>
 ```
 
-### Opciones Avanzadas
-- **`--data-length`**: Define la longitud de los paquetes.
-- **`-f`**: Fragmenta los paquetes para dificultar la detección.
-- **`--source-port 80`**: Usa el puerto 80 como puerto de origen; útil si el puerto 80 no está bloqueado.
-- **`-D (Decoy)`**: Envía paquetes falsos con IPs falsas.
-- **`--spoof-mac`**: Cambia la dirección MAC de origen.
-- **`-sS`**: SYN-Scan, realiza solo el SYN del Three-Way Handshake.
-- **`--min-rate`**: Define el mínimo de paquetes enviados por segundo.
-
 ### Ejemplos y Explicaciones
 - **Three-Way Handshake**: Secuencia de conexión TCP (SYN, SYN-ACK, ACK).
 - **RST**: Señal para finalizar una conexión TCP.
 
-## Herramientas para la Enumeración de Redes y Sistemas
+## Clase del 01-11-2024
 
-### smbclient
-- Similar a `crackmapexec`.
-- Carpetas con `$` son predefinidas (usadas para gestión y mantenimiento).
+### Enumeración y Escaneo de SMB y SNMP
+- **smbclient**: Similar a `crackmapexec`, permite conectarse a recursos compartidos SMB. Las carpetas con `$` son predefinidas (usadas para gestión y mantenimiento).
+- **enum4linux**: Herramienta para enumerar usuarios a través de SMB en el puerto 445.
+- **snmpwalk**: Lista dispositivos en una red mediante el protocolo SNMP (puertos UDP 161 y 162).
+- **arp-scan**: Alternativa a `snmpwalk`, útil para detectar dispositivos en la red sin depender de puertos.
+- **nbtscan**: Lista equipos en la red a través de NetBIOS (puerto TCP 139).
 
-### enum4linux
-- Herramienta para enumerar usuarios a través de SMB en el puerto 445.
+## Hacking – Post-Explotación
 
-### snmpwalk
-- Lista dispositivos en una red mediante el protocolo SNMP (puertos UDP 161 y 162).
+### Herramientas para Post-Explotación
+- **WinPEAS**: Para detectar vulnerabilidades en sistemas Windows.
+- **LinPEAS**: Similar a WinPEAS, pero para sistemas Linux.
+- **Gtfobins**: Herramienta para identificar binarios en sistemas Linux que pueden utilizarse para escalación de privilegios.
+- **Lolbas**: Lista de binarios en Windows que pueden usarse en ataques post-explotación.
+- **Bashark**: Framework de post-explotación para entornos Linux.
+- **Mimikatz**: Herramienta para la extracción de contraseñas y tokens en sistemas Windows.
+- **Empire**: Framework de post-explotación y explotación de Windows.
+- **Msfvenom**: Herramienta de Metasploit para generar payloads personalizados.
 
-### arp-scan
-- Alternativa a `snmpwalk`, útil para detectar dispositivos en la red sin depender de puertos.
+### Herramientas Generales de Post-Explotación
+- **Metasploit (msfconsole)**: Framework para explotación y post-explotación de vulnerabilidades.
 
-### nbtscan
-- Lista equipos en la red a través de NetBIOS (puerto TCP 139).
+### Decodificación y Codificación
 
-## Codificación y Decodificación
-
-### Decodificar Base64
+#### Base64
 ```bash
 echo "Qm9iIC0gIVBAJCRXMHJEITEyMw" | base64 --decode
 ```
@@ -89,57 +89,17 @@ Resultado:
 Bob - !P@$sW0rD!123
 ```
 
-## Protocolos Importantes
-
+### Protocolos y Puertos Importantes
 - **LDAP**: Utilizado por Active Directory para comunicación entre equipos.
-- **NetBIOS**: Protocolo de Windows para comunicación en red, ahora reemplazado en gran parte por SMB.
+- **NetBIOS**: Protocolo de Windows para comunicación en red, reemplazado en gran parte por SMB.
 
-## Tabla de Contenidos
-- [Clase del 30-10-2024](#clase-del-30-10-2024)
-- [Clase del 31-10-2024 - Cómo Evadir un Firewall](#clase-del-31-10-2024---cómo-evadir-un-firewall)
-- [Herramientas para la Enumeración de Redes y Sistemas](#herramientas-para-la-enumeración-de-redes-y-sistemas)
-- [Codificación y Decodificación](#codificación-y-decodificación)
-- [Protocolos Importantes](#protocolos-importantes)
+## Herramientas Resumidas
 
-
-Hacking – Post-Explotación
-
-• WinPEAS
-• LinPEAS
-• Gtfobins
-• Lolbas
-• Bashark
-• Mimikatz
-• Empire
-• Msfvenom
-
-Técnicas de evasión de Firewalls con NMAP
-Cuando se realizan pruebas de penetración, uno de los mayores desafíos es evadir la detección de los Firewalls, que son diseñados para proteger las redes y sistemas de posibles amenazas. Para superar este obstáculo, Nmap ofrece una variedad de técnicas de evasión que permiten a los profesionales de seguridad realizar escaneos sigilosos y evitar así la detección de los mismos.
-Algunos de estos parametros son:
-•
-MTU (--mtu): La técnica de evasión de MTU o “Maximum Transmission Unit” implica ajustar el tamaño de los paquetes que se envían para evitar la detección por parte del Firewall. Nmap permite configurar manualmente el tamaño máximo de los paquetes para garantizar que sean lo suficientemente pequeños para pasar por el Firewall sin ser detectados.
-•
-Data Length (--data-length): Esta técnica se basa en ajustar la longitud de los datos enviados para que sean lo suficientemente cortos como para pasar por el Firewall sin ser detectados. Nmap permite a los usuarios configurar manualmente la longitud de los datos enviados para que sean lo suficientemente pequeños para evadir la detección del Firewall.
-•
-Source Port (--source-port): Esta técnica consiste en configurar manualmente el número de puerto de origen de los paquetes enviados para evitar la detección por parte del Firewall. Nmap permite a los usuarios especificar manualmente un puerto de origen aleatorio o un puerto específico para evadir la detección del Firewall.
-•
-Decoy (-D): Esta técnica de evasión en Nmap permite al usuario enviar paquetes falsos a la red para confundir a los sistemas de detección de intrusos y evitar la detección del Firewall. El comando -D permite al usuario enviar paquetes falsos junto con los paquetes reales de escaneo para ocultar su actividad.
-•
-Fragmented (-f): Esta técnica se basa en fragmentar los paquetes enviados para que el Firewall no pueda reconocer el tráfico como un escaneo. La opción -f en Nmap permite fragmentar los paquetes y enviarlos por separado para evitar la detección del Firewall.
-•
-Spoof-Mac (--spoof-mac): Esta técnica de evasión se basa en cambiar la dirección MAC del paquete para evitar la detección del Firewall. Nmap permite al usuario configurar manualmente la dirección MAC para evitar ser detectado por el Firewall.
-•
-Stealth Scan (-sS): Esta técnica es una de las más utilizadas para realizar escaneos sigilosos y evitar la detección del Firewall. El comando -sS permite a los usuarios realizar un escaneo de tipo SYN sin establecer una conexión completa, lo que permite evitar la detección del Firewall.
-•
-min-rate (--min-rate): Esta técnica permite al usuario controlar la velocidad de los paquetes enviados para evitar la detección del Firewall. El comando --min-rate permite al usuario reducir la velocidad de los paquetes enviados para evitar ser detectado por el Firewall.
-Es importante destacar que, además de las técnicas de evasión mencionadas anteriormente, existen muchas otras opciones en Nmap que pueden ser utilizadas para realizar pruebas de penetración efectivas y evadir la detección del Firewall. Sin embargo, las técnicas que hemos mencionado son algunas de las más populares y ampliamente utilizadas por los profesionales de seguridad para superar los obstáculos que presentan los Firewalls en la realización de pruebas de penetración.
-
-**TOP EVASION**
-
-- -source-port
-- D
-- spoof-mac
-- sS
-- -min-rate
-
-Metasploit (msfconsole)
+### Resumen de Comandos y Herramientas
+- **Reconocimiento**: Google Dorks, Shodan, Robtex, DNSDumpster, nslookup, dig, Maltego, The Harvester.
+- **Escaneo Básico**: ping, arp-scan, nmap, AutoRecon, Netdiscover.
+- **Enumeración y Escaneo de SMB/SNMP**: smbclient, enum4linux, snmpwalk, nbtscan.
+- **Evasión de Firewall en Nmap**: Técnicas de ajuste de MTU, Source Port, Decoy, Fragmented, Stealth Scan y otras técnicas.
+- **Post-Explotación**: WinPEAS, LinPEAS, Gtfobins, Lolbas, Bashark, Mimikatz, Empire, Msfvenom.
+- **Framework General**: Metasploit (msfconsole).
+- **Decodificación Base64**: Método para decodificar y codificar en formato base64.
