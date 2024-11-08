@@ -12,6 +12,7 @@
 - **dig**: Alternativa avanzada a `nslookup` para consultas de DNS.
 - **Maltego**: Herramienta de análisis de inteligencia y conexiones entre nodos.
 - **The Harvester**: Herramienta para recolectar correos y nombres de dominio.
+- **AutoReconTool (Recon-NG)**:  Framework de reconocimiento modular que permite realizar tareas de recolección de información avanzada.
 
 ### Enumeración / Escaneo
 - `ping`: Comando para comprobar la conectividad con un dispositivo en la red.
@@ -59,9 +60,9 @@ nmap -sCV -p80,443,21 <IP>
 ### Enumeración y Escaneo de SMB y SNMP
 - **smbclient**: Similar a `crackmapexec`, permite conectarse a recursos compartidos SMB. Las carpetas con `$` son predefinidas (usadas para gestión y mantenimiento).
 - **enum4linux**: Herramienta para enumerar usuarios a través de SMB en el puerto 445.
+- **nbtscan**: Lista equipos en la red a través de NetBIOS (puerto TCP 139).
 - **snmpwalk**: Lista dispositivos en una red mediante el protocolo SNMP (puertos UDP 161 y 162).
 - **arp-scan**: Alternativa a `snmpwalk`, útil para detectar dispositivos en la red sin depender de puertos.
-- **nbtscan**: Lista equipos en la red a través de NetBIOS (puerto TCP 139).
 
 ## Hacking – Post-Explotación
 
@@ -92,6 +93,7 @@ Bob - !P@$sW0rD!123
 ### Protocolos y Puertos Importantes
 - **LDAP**: Utilizado por Active Directory para comunicación entre equipos.
 - **NetBIOS**: Protocolo de Windows para comunicación en red, reemplazado en gran parte por SMB.
+- **Protocolo de Escritorio Remoto (RDP)**: Utilizado para acceder y controlar de forma remota equipos Windows en redes locales y a través de internet, generalmente en el puerto 3389.
 
 ## Herramientas Resumidas
 
