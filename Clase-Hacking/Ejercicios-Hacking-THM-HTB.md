@@ -71,3 +71,35 @@ dig @1.1.1.1 tryhackme.com MX
 
 ---
 
+Esta guía proporciona una introducción a herramientas esenciales para **reconocimiento pasivo**, ayudándote a obtener información de DNS sin interactuar directamente con el objetivo.
+
+## DNSDumpster
+
+**DNSDumpster** es una herramienta en línea útil para descubrir subdominios y obtener una vista detallada de los registros DNS sin necesidad de realizar consultas DNS manuales. 
+
+- **Subdominios**: A diferencia de herramientas como `nslookup` y `dig`, DNSDumpster puede revelar subdominios ocultos que pueden contener información valiosa, como servicios vulnerables o sin actualizar.
+- **Consulta Completa**: Con una sola búsqueda en DNSDumpster, es posible obtener:
+  - Subdominios y sus direcciones IP.
+  - Registros DNS completos (A, MX, TXT, etc.).
+  - Ubicación geográfica de los servidores.
+- **Visualización Gráfica**: DNSDumpster organiza los resultados en tablas y genera un gráfico visual, mostrando cómo los registros DNS y MX se conectan con sus respectivos servidores.
+
+Esta herramienta permite exportar el gráfico y reorganizar los elementos, facilitando la identificación visual de la infraestructura del objetivo.
+
+---
+
+## Shodan.io
+
+**Shodan.io** es un motor de búsqueda diseñado para identificar dispositivos conectados a internet, en lugar de páginas web, lo cual es útil tanto para pruebas de penetración como para defensas de seguridad.
+
+- **Información Recopilada**: Shodan escanea y registra información de dispositivos accesibles en línea. Esto incluye:
+  - Dirección IP
+  - Proveedor de alojamiento (hosting)
+  - Ubicación geográfica
+  - Tipo y versión del servidor
+- **Uso en Reconocimiento Pasivo**: Al buscar un dominio o dirección IP en Shodan.io, se puede obtener una vista completa de los dispositivos asociados sin interactuar directamente con ellos.
+- **Funcionalidad Defensiva**: Las organizaciones pueden usar Shodan.io para monitorear sus dispositivos conectados y expuestos en la red, ayudando a identificar posibles vulnerabilidades.
+
+**Ejemplo de uso**: Al buscar `tryhackme.com` en Shodan.io, puedes ver registros detallados de sus servidores y otros dispositivos conectados.
+
+---
