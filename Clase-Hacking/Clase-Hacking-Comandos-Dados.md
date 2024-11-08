@@ -12,7 +12,11 @@
 - **dig**: Alternativa avanzada a `nslookup` para consultas de DNS.
 - **Maltego**: Herramienta de análisis de inteligencia y conexiones entre nodos.
 - **The Harvester**: Herramienta para recolectar correos y nombres de dominio.
-- **AutoReconTool (Recon-NG)**:  Framework de reconocimiento modular que permite realizar tareas de recolección de información avanzada.
+- **AutoReconTool (Recon-NG)**: Framework de reconocimiento modular que permite realizar tareas de recolección de información avanzada.
+- **Censys**: Herramienta para recopilar información de IPs y dominios de forma similar a Robtex.
+- **Hunter.io, phonebook.cz, verifyemailaddress.org**: Herramientas en línea para obtener información sobre correos electrónicos y empleados de una organización, útiles en ataques de phishing.
+- **PentestGPT (HackerGPT)**: Herramienta de IA que proporciona información sobre ciberseguridad y reconocimiento.
+- **Practicas recomendadas**: [TryHackMe - Passive Recon](https://tryhackme.com/room/passiverecon).
 
 ### Enumeración / Escaneo
 - `ping`: Comando para comprobar la conectividad con un dispositivo en la red.
@@ -63,6 +67,7 @@ nmap -sCV -p80,443,21 <IP>
 - **nbtscan**: Lista equipos en la red a través de NetBIOS (puerto TCP 139).
 - **snmpwalk**: Lista dispositivos en una red mediante el protocolo SNMP (puertos UDP 161 y 162).
 - **arp-scan**: Alternativa a `snmpwalk`, útil para detectar dispositivos en la red sin depender de puertos.
+- **Practicas recomendadas**: [Hack The Box - Enumeration Module](https://academy.hackthebox.com/module/details/19).
 
 ## Hacking – Post-Explotación
 
@@ -98,7 +103,7 @@ Bob - !P@$sW0rD!123
 ## Herramientas Resumidas
 
 ### Resumen de Comandos y Herramientas
-- **Reconocimiento**: Google Dorks, Shodan, Robtex, DNSDumpster, nslookup, dig, Maltego, The Harvester.
+- **Reconocimiento**: Google Dorks, Shodan, Robtex, DNSDumpster, nslookup, dig, Maltego, The Harvester, AutoReconTool (Recon-NG), Censys, Hunter.io, phonebook.cz, verifyemailaddress.org, PentestGPT.
 - **Escaneo Básico**: ping, arp-scan, nmap, AutoRecon, Netdiscover.
 - **Enumeración y Escaneo de SMB/SNMP**: smbclient, enum4linux, snmpwalk, nbtscan.
 - **Evasión de Firewall en Nmap**: Técnicas de ajuste de MTU, Source Port, Decoy, Fragmented, Stealth Scan y otras técnicas.
