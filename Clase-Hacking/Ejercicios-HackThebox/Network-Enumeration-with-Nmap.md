@@ -360,5 +360,77 @@ Ejercicio1
 ---
 
 
+# Nmap Scripting Engine (NSE)
+
+The Nmap Scripting Engine (NSE) allows advanced interaction with services through scripts written in Lua. NSE scripts are organized into 14 categories.
+
+## NSE Script Categories
+| Category      | Description |
+|---------------|-------------|
+| **auth**      | Authentication credentials determination. |
+| **broadcast** | Host discovery by broadcasting. |
+| **brute**     | Executes brute-force login attempts. |
+| **default**   | Default scripts executed with the -sC option. |
+| **discovery** | Evaluates accessible services. |
+| **dos**       | Checks for denial of service vulnerabilities. |
+| **exploit**   | Attempts to exploit known vulnerabilities. |
+| **external**  | Uses external services for additional processing. |
+| **fuzzer**    | Identifies vulnerabilities through fuzzing. |
+| **intrusive** | Intrusive scripts potentially affecting the target. |
+| **malware**   | Checks for malware on the target system. |
+| **safe**      | Non-intrusive, defensive scripts. |
+| **version**   | Extends service detection capabilities. |
+| **vuln**      | Identifies specific vulnerabilities. |
+
+## Running NSE Scripts
+
+- **Default Scripts**:
+  ```bash
+  sudo nmap <target> -sC
+  ```
+
+- **Specific Script Category**:
+  ```bash
+  sudo nmap <target> --script <category>
+  ```
+
+- **Defined Scripts**:
+  ```bash
+  sudo nmap <target> --script <script-name>,<script-name>
+  ```
+
+### Example: Using Defined Scripts
+To analyze an SMTP service, you might run:
+```bash
+sudo nmap 10.129.2.28 -p 25 --script banner,smtp-commands
+```
+In this example, the `banner` script identifies the OS, while `smtp-commands` lists available commands.
+
+## Aggressive Scanning (-A)
+
+The aggressive scan option `-A` performs service detection, OS detection, traceroute, and default NSE scripts:
+```bash
+sudo nmap 10.129.2.28 -p 80 -A
+```
+
+### Example Output (Aggressive Scan)
+With `-A`, Nmap can reveal details such as the web server type (e.g., Apache 2.4.29), web application (e.g., WordPress 5.3.4), and likely OS (e.g., Linux).
+
+## Vulnerability Scanning with NSE
+
+The **vuln** script category checks services for known vulnerabilities. For example:
+```bash
+sudo nmap 10.129.2.28 -p 80 -sV --script vuln
+```
+This command examines the web server on port 80 for potential vulnerabilities, displaying any CVE details if found.
+
+## Additional NSE Script Documentation
+
+For more information on NSE scripts and categories, visit the [Nmap NSE documentation](https://nmap.org/nsedoc/index.html).
+
+---
+
+
+
 
 
