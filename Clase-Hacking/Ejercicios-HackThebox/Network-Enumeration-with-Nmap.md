@@ -212,8 +212,151 @@ Ejercicio1:
 
 Ejercicio2
    Enumerate the hostname of your target and submit it as the answer. (case-sensitive)
-      ```dsaadsad```
+      ```nmap -vv -A -sV 10.129.92.172```
       
+---
+
+
+# Saving Nmap Results
+
+When performing scans, it is essential to save results for documentation, comparison, and reporting purposes. Nmap supports saving output in three main formats.
+
+## Nmap Output Formats
+1. **Normal Output (-oN)**: Standard, human-readable output with `.nmap` extension.
+2. **Grepable Output (-oG)**: Output in a format that can be parsed with tools like `grep`, saved with `.gnmap` extension.
+3. **XML Output (-oX)**: XML format with `.xml` extension, useful for generating reports.
+
+### Saving in All Formats
+You can use `-oA` to save results in all three formats simultaneously. This command saves files with a specified prefix, for example:
+
+```bash
+sudo nmap 10.129.2.28 -p- -oA target
+```
+
+In this case, the output files will be named `target.nmap`, `target.gnmap`, and `target.xml`.
+
+### Example Output Files
+After running the command, check the files in the current directory:
+
+```bash
+ls
+# Output:
+# target.gnmap target.xml target.nmap
+```
+
+## Examining Each Output Format
+
+1. **Normal Output (.nmap)**:
+   ```bash
+   cat target.nmap
+   ```
+   Example contents:
+   ```plaintext
+   # Nmap scan report for 10.129.2.28
+   PORT   STATE SERVICE
+   22/tcp open  ssh
+   25/tcp open  smtp
+   80/tcp open  http
+   ```
+
+2. **Grepable Output (.gnmap)**:
+   ```bash
+   cat target.gnmap
+   ```
+   Example contents:
+   ```plaintext
+   Host: 10.129.2.28 ()  Ports: 22/open/tcp//ssh///, 25/open/tcp//smtp///, 80/open/tcp//http///
+   ```
+
+3. **XML Output (.xml)**:
+   ```bash
+   cat target.xml
+   ```
+   The XML format is detailed and can be converted to HTML for easier viewing.
+
+## Converting XML to HTML
+Use `xsltproc` to convert XML output to an HTML report:
+```bash
+xsltproc target.xml -o target.html
+```
+
+Open `target.html` in a browser for a structured, easy-to-read report.
+
+Ejercicio1: 
+   Perform a full TCP port scan on your target and create an HTML report. Submit the number of the highest port as the answer.
+      ```nmap  -vv -sT -p 1-65535 10.129.55.118 -oA target```
+      ```xsltproc target.xml -o target.html  ```
+      ```31337```
+
+---
+
+
+# Service Enumeration with Nmap
+
+Service enumeration is essential for identifying application versions, which enables vulnerability scanning and analysis for specific exploits.
+
+## Key Steps in Service Enumeration
+
+1. **Initial Port Scan**: Start with a quick scan to detect open ports without generating too much network traffic.
+2. **Service Version Detection (-sV)**: Once open ports are identified, use `-sV` to determine service versions on each port.
+3. **Detailed Scan with Progress Tracking**: During a scan, pressing the Space Bar or using `--stats-every=<time>` allows for monitoring the scan’s progress.
+
+### Commands for Service Enumeration
+
+- **Full Port and Version Scan**:
+  ```bash
+  sudo nmap 10.129.2.28 -p- -sV
+  ```
+  - `-p-`: Scans all ports.
+  - `-sV`: Detects service versions.
+
+- **Progress Update** (`--stats-every=5s`):
+  ```bash
+  sudo nmap 10.129.2.28 -p- -sV --stats-every=5s
+  ```
+  - Shows scan status every 5 seconds.
+
+- **Increase Verbosity (-v / -vv)**:
+  ```bash
+  sudo nmap 10.129.2.28 -p- -sV -v
+  ```
+  - Increases output verbosity to display open ports in real-time.
+
+## Banner Grabbing
+
+Upon scan completion, Nmap displays TCP ports, services, and versions. Nmap primarily uses service banners to identify versions; if a banner is unavailable, it relies on signature-based matching, which can lengthen the scan.
+
+Example Command:
+```bash
+sudo nmap 10.129.2.28 -p- -sV -Pn -n --disable-arp-ping --packet-trace
+```
+
+## Useful Options
+
+- **-Pn**: Disables ICMP Echo requests.
+- **-n**: Disables DNS resolution.
+- **--disable-arp-ping**: Avoids ARP pinging.
+- **--packet-trace**: Shows all packets sent and received.
+- **--reason**: Displays the reason for each port's state.
+
+## Advanced Manual Banner Grabbing with `nc` and `tcpdump`
+
+1. **Using netcat (nc)**:
+   ```bash
+   nc -nv 10.129.2.28 25
+   ```
+
+2. **Intercepting Traffic with tcpdump**:
+   ```bash
+   sudo tcpdump -i eth0 host 10.10.14.2 and 10.129.2.28
+   ```
+
+This manual approach helps capture additional information from service banners, often missed by automated scans.
+
+Ejercicio1
+    Enumerate all ports and their services. One of the services contains the flag you have to submit as the answer.
+       ```nmap -vv -sV -A -p- 10.129.55.118```
+       
 ---
 
 
