@@ -428,7 +428,77 @@ This command examines the web server on port 80 for potential vulnerabilities, d
 
 For more information on NSE scripts and categories, visit the [Nmap NSE documentation](https://nmap.org/nsedoc/index.html).
 
+
+Ejercicio1:
+   Use NSE and its scripts to find the flag that one of the services contain and submit it as the answer.
+      ```nmap -vv 10.129.55.118 --script vuln -p 80```
+      ```curl http://10.129.55.118/robots.txt```
+      
 ---
+
+
+# Nmap Performance Optimization
+
+## Overview
+Optimizing Nmap performance is essential when scanning extensive networks or when dealing with limited bandwidth. Various settings can improve scan speed and efficiency, allowing you to balance precision with speed.
+
+## Key Parameters for Optimization
+
+### Timeout Settings
+Adjusting timeouts can significantly reduce scan duration, but too short a timeout may miss active hosts. Use:
+- `--min-rtt-timeout <time>`: Sets a minimum Round-Trip-Time for response.
+- `--max-rtt-timeout <time>`: Sets a maximum Round-Trip-Time. 
+
+**Example**:
+```bash
+sudo nmap 10.129.2.0/24 -F --initial-rtt-timeout 50ms --max-rtt-timeout 100ms
+```
+
+### Max Retries
+You can control the retry rate for sent packets to save time, especially with unresponsive ports:
+- `--max-retries <number>`: Defines the number of retries. Set to `0` to skip retries, which accelerates the scan but may miss closed ports.
+
+**Example**:
+```bash
+sudo nmap 10.129.2.0/24 -F --max-retries 0
+```
+
+### Packet Rate
+By setting a minimum rate for sending packets, you can speed up Nmap scans on networks with sufficient bandwidth.
+- `--min-rate <number>`: Specifies the minimum number of packets sent per second.
+
+**Example**:
+```bash
+sudo nmap 10.129.2.0/24 -F --min-rate 300
+```
+
+### Timing Templates
+Nmap offers six timing templates to adjust scan aggressiveness:
+- **-T 0** (paranoid), **-T 1** (sneaky), **-T 2** (polite): For slow, stealthy scans.
+- **-T 3** (normal): Default setting.
+- **-T 4** (aggressive), **-T 5** (insane): Fast scans that may trigger security systems.
+
+**Example**:
+```bash
+sudo nmap 10.129.2.0/24 -F -T 5
+```
+
+## Example Commands
+
+- **Quick Scan with Aggressive Timing and No Retries**:
+  ```bash
+  sudo nmap -T 4 --min-rate 300 --max-retries 0 10.129.2.0/24
+  ```
+  
+- **Full Network Scan with Reduced Timeouts**:
+  ```bash
+  sudo nmap 10.129.2.0/24 -F --initial-rtt-timeout 50ms --max-rtt-timeout 100ms
+  ```
+
+## Summary
+Optimizing performance settings in Nmap helps strike a balance between speed and thoroughness, especially in large or bandwidth-limited environments. Experiment with these options to find the best combination for your specific network scenario.
+
+For more details, refer to the [Nmap documentation on performance and timing](https://nmap.org/book/performance-timing-templates.html).
 
 
 
