@@ -1,105 +1,101 @@
 
-# Ejercicio 1: TryHackMe - Passive Reconnaissance
+# Exercise 1: TryHackMe - Passive Reconnaissance
 
-## Introducción
+## Introduction
 
-En este ejercicio, aprenderemos a usar **whois**, **nslookup** y **dig**, así como otros conceptos relacionados.
+In this exercise, we will learn how to use **whois**, **nslookup**, and **dig**, along with related concepts.
 
-- **whois** se utiliza para realizar consultas sobre registros WHOIS.
-- **nslookup** y **dig** se emplean para consultar registros de bases de datos DNS.
+- **whois** is used to perform WHOIS record queries.
+- **nslookup** and **dig** are used to perform DNS database record queries.
 
-Además, conoceremos **DNSDumpster** y **Shodan.io**, servicios en línea que permiten recopilar información sobre un objetivo sin interactuar directamente con él.
+We will also explore **DNSDumpster** and **Shodan.io**, which are online services that allow gathering information about a target without directly connecting to it.
 
-## Reconocimiento Pasivo versus Activo
+## Passive vs. Active Reconnaissance
 
-- **Reconocimiento Pasivo**: Confía en información pública disponible sin necesidad de interactuar con el objetivo. Actividades comunes incluyen:
-  - Consultar los registros DNS de un dominio a través de un servidor DNS público.
-  - Revisar ofertas de trabajo publicadas en el sitio web de la empresa.
-  - Leer artículos o informes sobre la empresa.
+- **Passive Reconnaissance**: Relies on publicly available information without interacting directly with the target. Common activities include:
+  - Checking DNS records of a domain using a public DNS server.
+  - Reviewing job postings published on the target company's website.
+  - Reading articles or reports about the target company.
 
-- **Reconocimiento Activo**: Implica contacto directo con el objetivo, lo cual puede revelar la actividad del analista. Ejemplos incluyen:
-  - Conectarse a servidores del objetivo (por ejemplo, HTTP, FTP o SMTP).
-  - Llamar a la empresa para solicitar información.
-  - Acceder físicamente a la empresa haciéndose pasar por personal de mantenimiento.
+- **Active Reconnaissance**: Requires direct interaction with the target, which can reveal the analyst's activity. Examples include:
+  - Connecting to the target's servers (e.g., HTTP, FTP, SMTP).
+  - Calling the company to request information.
+  - Physically entering the company pretending to be maintenance staff.
 
 ## Whois
 
-**WHOIS** es un protocolo de solicitud y respuesta que sigue el estándar [RFC 3912](https://www.ietf.org/rfc/rfc3912.txt). Un servidor WHOIS escucha en el puerto 43 TCP para recibir peticiones. Los registradores de dominio son responsables de mantener los registros de los nombres de dominio que administran. Los datos clave que proporcionan los servidores WHOIS incluyen:
+**WHOIS** is a request and response protocol following [RFC 3912](https://www.ietf.org/rfc/rfc3912.txt). A WHOIS server listens on TCP port 43 for incoming requests. Domain registrars are responsible for maintaining records of the domain names they manage. Key information provided by WHOIS servers includes:
 
-  - **Registrador**: ¿A través de qué registrador se registró el nombre de dominio?
-  - **Información de contacto del registrante**: Nombre, organización, dirección, teléfono y otros detalles (a menos que estén ocultos mediante un servicio de privacidad).
-  - **Fechas de creación, actualización y expiración**: ¿Cuándo se registró el nombre de dominio por primera vez? ¿Cuándo fue actualizado por última vez? ¿Y cuándo necesita ser renovado?
-  - **Servidor de nombres**: ¿Qué servidor se debe consultar para resolver el nombre de dominio?
+  - **Registrar**: Which registrar was the domain name registered through?
+  - **Registrant Contact Info**: Name, organization, address, phone, and other details (unless hidden by a privacy service).
+  - **Creation, Update, and Expiration Dates**: When was the domain first registered? When was it last updated? When does it need to be renewed?
+  - **Name Server**: Which server should be consulted to resolve the domain name?
 
-## nslookup y dig
+## nslookup and dig
 
-**nslookup** y **dig** son herramientas para consultar registros DNS y obtener información detallada sobre un dominio.
+**nslookup** and **dig** are tools used to query DNS records and gather detailed information about a domain.
 
-### Parámetros de nslookup
+### nslookup Parameters
 
-1. **OPTIONS**: Especifica el tipo de consulta, por ejemplo:
-   - `A`: Devuelve direcciones IPv4.
-   - `AAAA`: Devuelve direcciones IPv6.
-   - `CNAME`: Nombre canónico.
-   - `MX`: Servidores de correo.
-   - `SOA`: Inicio de autoridad.
-   - `TXT`: Registros de texto.
+1. **OPTIONS**: Specifies the query type, for example:
+   - `A`: Returns IPv4 addresses.
+   - `AAAA`: Returns IPv6 addresses.
+   - `CNAME`: Canonical name.
+   - `MX`: Mail servers.
+   - `SOA`: Start of authority.
+   - `TXT`: Text records.
 
-2. **DOMAIN_NAME**: Dominio que se desea consultar.
+2. **DOMAIN_NAME**: Domain name to be queried.
 
-3. **SERVER**: Servidor DNS para realizar la consulta. Ejemplos de servidores DNS públicos incluyen:
+3. **SERVER**: DNS server to be used for the query. Examples of public DNS servers include:
    - Cloudflare: `1.1.1.1`, `1.0.0.1`
    - Google: `8.8.8.8`, `8.8.4.4`
    - Quad9: `9.9.9.9`, `149.112.112.112`
 
-**Ejemplo de nslookup**:
+**Example of nslookup**:
 ```bash
 nslookup -type=A tryhackme.com 1.1.1.1
 ```
-Este comando devolverá las direcciones IPv4 asociadas al dominio `tryhackme.com`.
+This command will return the IPv4 addresses associated with the domain `tryhackme.com`.
 
 ### dig
 
-- **dig** (Domain Information Groper) es otra herramienta avanzada para consultas DNS.
-- Para especificar el tipo de registro, se utiliza el formato `dig DOMAIN_NAME TYPE`.
+- **dig** (Domain Information Groper) is another advanced tool for DNS queries.
+- To specify the record type, use `dig DOMAIN_NAME TYPE`.
 
-**Ejemplo de dig**:
+**Example of dig**:
 ```bash
 dig @1.1.1.1 tryhackme.com MX
 ```
-**Comparación**: A diferencia de `nslookup`, `dig` proporciona más detalles por defecto, como el TTL (Time To Live) de cada registro.
-
----
-
-Esta guía proporciona una introducción a herramientas esenciales para **reconocimiento pasivo**, ayudándote a obtener información de DNS sin interactuar directamente con el objetivo.
+**Comparison**: Unlike `nslookup`, `dig` provides more details by default, such as the TTL (Time To Live) of each record.
 
 ## DNSDumpster
 
-**DNSDumpster** es una herramienta en línea útil para descubrir subdominios y obtener una vista detallada de los registros DNS sin necesidad de realizar consultas DNS manuales. 
+**DNSDumpster** is an online tool useful for discovering subdomains and getting a detailed view of DNS records without needing to perform manual DNS queries.
 
-- **Subdominios**: A diferencia de herramientas como `nslookup` y `dig`, DNSDumpster puede revelar subdominios ocultos que pueden contener información valiosa, como servicios vulnerables o sin actualizar.
-- **Consulta Completa**: Con una sola búsqueda en DNSDumpster, es posible obtener:
-  - Subdominios y sus direcciones IP.
-  - Registros DNS completos (A, MX, TXT, etc.).
-  - Ubicación geográfica de los servidores.
-- **Visualización Gráfica**: DNSDumpster organiza los resultados en tablas y genera un gráfico visual, mostrando cómo los registros DNS y MX se conectan con sus respectivos servidores.
+- **Subdomains**: Unlike tools like `nslookup` and `dig`, DNSDumpster can reveal hidden subdomains that might contain valuable information, such as outdated or vulnerable services.
+- **Complete Query**: With a single search in DNSDumpster, you can obtain:
+  - Subdomains and their IP addresses.
+  - Complete DNS records (A, MX, TXT, etc.).
+  - Geographical location of servers.
+- **Graphical Visualization**: DNSDumpster organizes results into tables and generates a visual graph showing how DNS and MX records connect to their respective servers.
 
-Esta herramienta permite exportar el gráfico y reorganizar los elementos, facilitando la identificación visual de la infraestructura del objetivo.
-
----
+This tool allows exporting the graph and rearranging elements, making it easier to visually identify the target's infrastructure.
 
 ## Shodan.io
 
-**Shodan.io** es un motor de búsqueda diseñado para identificar dispositivos conectados a internet, en lugar de páginas web, lo cual es útil tanto para pruebas de penetración como para defensas de seguridad.
+**Shodan.io** is a search engine designed to identify devices connected to the internet rather than web pages, making it useful for both penetration testing and security defenses.
 
-- **Información Recopilada**: Shodan escanea y registra información de dispositivos accesibles en línea. Esto incluye:
-  - Dirección IP
-  - Proveedor de alojamiento (hosting)
-  - Ubicación geográfica
-  - Tipo y versión del servidor
-- **Uso en Reconocimiento Pasivo**: Al buscar un dominio o dirección IP en Shodan.io, se puede obtener una vista completa de los dispositivos asociados sin interactuar directamente con ellos.
-- **Funcionalidad Defensiva**: Las organizaciones pueden usar Shodan.io para monitorear sus dispositivos conectados y expuestos en la red, ayudando a identificar posibles vulnerabilidades.
+- **Collected Information**: Shodan scans and records information about accessible devices online. This includes:
+  - IP address
+  - Hosting provider
+  - Geographical location
+  - Server type and version
+- **Use in Passive Reconnaissance**: By searching a domain or IP address on Shodan.io, you can obtain a complete view of associated devices without directly interacting with them.
+- **Defensive Functionality**: Organizations can use Shodan.io to monitor their connected and exposed devices on the network, helping to identify potential vulnerabilities.
 
-**Ejemplo de uso**: Al buscar `tryhackme.com` en Shodan.io, puedes ver registros detallados de sus servidores y otros dispositivos conectados.
+**Example**: Searching for `tryhackme.com` on Shodan.io provides detailed records of its servers and other connected devices.
 
 ---
+
+This guide provides an introduction to essential tools for **passive reconnaissance**, helping you obtain DNS and device information without direct interaction with the target.
