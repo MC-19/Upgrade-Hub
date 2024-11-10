@@ -503,4 +503,80 @@ For more details, refer to the [Nmap documentation on performance and timing](ht
 
 
 
+# Firewall and IDS/IPS Evasion
+
+Nmap gives us many different ways to bypass firewall rules and IDS/IPS. These methods include the fragmentation of packets, the use of decoys, and others that we will discuss in this section.
+
+## Firewalls
+A firewall is a security measure against unauthorized connection attempts from external networks. Every firewall security system is based on a software component that monitors network traffic between the firewall and incoming data connections and decides how to handle the connection based on the rules that have been set. It checks whether individual network packets are being passed, ignored, or blocked. This mechanism is designed to prevent unwanted connections that could be potentially dangerous.
+
+## IDS/IPS
+Like the firewall, the intrusion detection system (IDS) and intrusion prevention system (IPS) are also software-based components. IDS scans the network for potential attacks, analyzes them, and reports any detected attacks. IPS complements IDS by taking specific defensive measures if a potential attack should have been detected. The analysis of such attacks is based on pattern matching and signatures. If specific patterns are detected, such as a service detection scan, IPS may prevent the pending connection attempts.
+
+## Determine Firewalls and Their Rules
+We already know that when a port is shown as filtered, it can have several reasons. In most cases, firewalls have certain rules set to handle specific connections. The packets can either be dropped or rejected. The dropped packets are ignored, and no response is returned from the host.
+
+This is different for rejected packets that are returned with an RST flag. These packets contain different types of ICMP error codes or contain nothing at all.
+
+Such errors can be:
+- Net Unreachable
+- Net Prohibited
+- Host Unreachable
+- Host Prohibited
+- Port Unreachable
+- Proto Unreachable
+
+Nmap's TCP ACK scan (`-sA`) method is much harder to filter for firewalls and IDS/IPS systems than regular SYN (`-sS`) or Connect scans (`-sT`) because they only send a TCP packet with only the ACK flag. When a port is closed or open, the host must respond with an RST flag.
+
+### SYN-Scan
+```bash
+$ sudo nmap 10.129.2.28 -p 21,22,25 -sS -Pn -n --disable-arp-ping --packet-trace
+```
+
+### ACK-Scan
+```bash
+$ sudo nmap 10.129.2.28 -p 21,22,25 -sA -Pn -n --disable-arp-ping --packet-trace
+```
+
+## Detect IDS/IPS
+Unlike firewalls and their rules, the detection of IDS/IPS systems is much more difficult because these are passive traffic monitoring systems. IDS systems examine all connections between hosts. If the IDS finds packets containing the defined contents or specifications, the administrator is notified and takes appropriate action in the worst case.
+
+## Decoys
+There are cases in which administrators block specific subnets from different regions in principle. This prevents any access to the target network.
+
+### Scan by Using Decoys
+```bash
+$ sudo nmap 10.129.2.28 -p 80 -sS -Pn -n --disable-arp-ping --packet-trace -D RND:5
+```
+
+## Testing Firewall Rule
+```bash
+$ sudo nmap 10.129.2.28 -n -Pn -p445 -O
+```
+
+## Scan by Using Different Source IP
+```bash
+$ sudo nmap 10.129.2.28 -n -Pn -p 445 -O -S 10.129.2.200 -e tun0
+```
+
+## DNS Proxying
+By default, Nmap performs a reverse DNS resolution unless otherwise specified to find more important information about our target.
+
+### SYN-Scan of a Filtered Port
+```bash
+$ sudo nmap 10.129.2.28 -p50000 -sS -Pn -n --disable-arp-ping --packet-trace
+```
+
+### SYN-Scan From DNS Port
+```bash
+$ sudo nmap 10.129.2.28 -p50000 -sS -Pn -n --disable-arp-ping --packet-trace --source-port 53
+```
+
+## Connect To The Filtered Port
+```bash
+$ ncat -nv --source-port 53 10.129.2.28 50000
+```
+
+
+
 
