@@ -577,6 +577,9 @@ $ sudo nmap 10.129.2.28 -p50000 -sS -Pn -n --disable-arp-ping --packet-trace --s
 $ ncat -nv --source-port 53 10.129.2.28 50000
 ```
 
+Ejercicio1:
+    Our client wants to know if we can identify which operating system their provided machine is running on. Submit the OS name as the answer.
+      ```nmap -vv -sV -p 22,80 10.129.243.50```
 
 
 
