@@ -6,7 +6,7 @@ nmap -vv -sV -A -O -sC -p 135,139,445,3389 10.10.38.140 --scaneo de los purtos a
 
 nmap --script smb-vuln-ms17-010 -p445 10.10.38.140 --scaneo para saber si la maquina es vulnerable a este excploit tras la verison del sistema operativo\\
 
-estos 3 pasos se pueden hacer asi: ```nmap -A -p- -T4 --script vuln <ip>```
+estos 3 pasos se pueden hacer asi: ```nmap -vv -sV -sC -O -A -p445 -T4 --script vuln <ip>```
 
 Parte 2:
 
