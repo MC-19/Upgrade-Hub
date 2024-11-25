@@ -156,84 +156,100 @@ Continuacion maquina blue
 
 ### Hashing y Cifrado: Conceptos y Diferencias
 
-- **Hashing**:
-  - Proceso unidireccional que convierte datos en una cadena de longitud fija.
-  - No se puede revertir al valor original.
-  - Usos comunes:
-    - Almacenamiento de contraseñas.
-    - Verificación de integridad de datos.
-  - Ejemplos de algoritmos:
-    - MD5, SHA-1, SHA-256.
+#### **Hashing**
+- Proceso unidireccional que convierte datos en una cadena de longitud fija.
+- **No reversible**, diseñado para verificar datos, no protegerlos.
+- Usos comunes:
+  - Almacenamiento seguro de contraseñas.
+  - Verificación de integridad de archivos.
+- Ejemplos de algoritmos:
+  - MD5, SHA-1, SHA-256.
 
-- **Cifrado**:
-  - Proceso bidireccional que transforma datos para proteger su confidencialidad.
-  - Requiere una clave para cifrar y otra (o la misma) para descifrar.
-  - Usos comunes:
-    - Protección de datos sensibles.
-    - Comunicaciones seguras.
-  - Ejemplos de algoritmos:
-    - AES, RSA, DES.
+#### **Cifrado**
+- Proceso bidireccional que transforma datos para proteger su confidencialidad.
+- **Requiere una clave** para cifrar y otra (o la misma) para descifrar.
+- Usos comunes:
+  - Protección de datos sensibles.
+  - Comunicaciones seguras.
+- Ejemplos de algoritmos:
+  - AES, RSA, DES.
 
-- **Diferencias clave**:
-  | Aspecto          | Hashing              | Cifrado               |
-  |------------------|----------------------|-----------------------|
-  | Proceso          | Unidireccional       | Bidireccional         |
-  | Reversibilidad   | No reversible        | Reversible            |
-  | Propósito        | Verificación         | Confidencialidad      |
-  | Clave requerida  | No                   | Sí                    |
+#### **Diferencias clave**
+| Aspecto          | Hashing              | Cifrado               |
+|------------------|----------------------|-----------------------|
+| Proceso          | Unidireccional       | Bidireccional         |
+| Reversibilidad   | No reversible        | Reversible            |
+| Propósito        | Verificación         | Confidencialidad      |
+| Clave requerida  | No                   | Sí                    |
 
 ---
 
 ### Cracking de Contraseñas
 
 #### Métodos de Cracking
-1. **Fuerza Bruta**:
+1. **Fuerza Bruta**
    - Intenta todas las combinaciones posibles.
-   - Alto consumo de tiempo y recursos, pero garantiza éxito (si es posible).
+   - **Ventaja**: Garantiza éxito si es posible.
+   - **Desventaja**: Muy lento y consume muchos recursos.
    - Ejemplo de herramienta: `John the Ripper`.
 
-2. **Ataque con Diccionarios**:
+2. **Ataque con Diccionarios**
    - Utiliza listas predefinidas de palabras o combinaciones comunes.
-   - Más rápido que fuerza bruta, pero limitado a las entradas del diccionario.
+   - **Ventaja**: Más rápido que fuerza bruta.
+   - **Desventaja**: Limitado a las entradas disponibles en el diccionario.
    - Ejemplo de herramienta: `hashcat`.
-
----
-
-### Tipos de Diccionarios y Fuentes
-
-- **Tipos de Diccionarios**:
-  - Contraseñas comunes: Listas de palabras y frases populares.
-  - Específicos de idioma: Adaptados a patrones lingüísticos.
-  - Temáticos: Palabras relacionadas con un tema específico (e.g., deportes, tecnología).
-
-- **Dónde encontrar diccionarios**:
-  1. **Kali Linux**:
-     - Carpetas preinstaladas:
-       ```bash
-       /usr/share/wordlists/
-       ```
-     - Ejemplo: `rockyou.txt`.
-  2. **Internet**:
-     - Repositorios públicos como GitHub.
-     - Sitios web especializados en ciberseguridad.
-  3. **Darknet**:
-     - Mercados y foros para diccionarios avanzados o personalizados.
-     - Precaución: Algunos pueden ser ilegales o maliciosos.
-
-> 💡 **Consejo:** Selecciona diccionarios basados en el contexto del ataque para maximizar las posibilidades de éxito.
-
----
-
-### Herramientas Populares para Cracking
-- **John the Ripper**: Versátil y compatible con múltiples formatos de hash.
-- **Hashcat**: Potente y optimizado para GPUs.
-- **Hydra**: Especializado en ataques contra servicios como SSH, HTTP, etc.
 
 #### Ejemplo: Uso de Diccionario con Hashcat
 ```bash
 hashcat -m 0 -a 0 hash.txt /usr/share/wordlists/rockyou.txt
-
--m: Especifica el tipo de hash (e.g., 0 para MD5).
--a: Modo de ataque (0 para diccionario).
 ```
+- **`-m`**: Especifica el tipo de hash (e.g., `0` para MD5).
+- **`-a`**: Modo de ataque (`0` para diccionario).
 
+---
+
+### Diccionarios: Tipos y Fuentes
+
+#### **Tipos de Diccionarios**
+- **Contraseñas comunes**: Contienen palabras y frases populares utilizadas frecuentemente.
+- **Específicos de idioma**: Adaptados a patrones lingüísticos de diferentes regiones.
+- **Temáticos**: Enfocados en un tema específico (e.g., deportes, tecnología, cultura).
+
+#### **Dónde Encontrar Diccionarios**
+1. **Kali Linux**:
+   - Ruta predeterminada:
+     ```bash
+     /usr/share/wordlists/
+     ```
+   - Ejemplo: `rockyou.txt`.
+   - Comandos para acceder:
+     ```bash
+     cd /usr/share/wordlists
+     ls -la
+     ```
+   - Para descomprimir `rockyou.txt`:
+     ```bash
+     sudo gunzip /usr/share/wordlists/rockyou.txt.gz
+     ```
+
+2. **Internet**:
+   - Repositorios públicos como GitHub.
+   - **SecLists**: Amplia colección organizada por categorías (contraseñas, nombres de usuario, directorios, etc.).
+     - Enlace: [SecLists - Daniel Miessler](https://github.com/danielmiessler/SecLists).
+     - Versiones recomendadas:
+       - **Small**: Más ágil y ligera.
+       - **Complete**: Mayor cobertura, más completa.
+
+3. **Darknet**:
+   - Mercados y foros para diccionarios personalizados.
+   - **Advertencia**: Riesgo de contenido ilegal o malicioso.
+
+> 💡 **Consejo:** Organiza tus diccionarios en carpetas temáticas y utiliza los más adecuados según el contexto del ataque.
+
+---
+
+### Herramientas Populares para Cracking
+
+- **John the Ripper**: Versátil y compatible con múltiples formatos de hash.
+- **Hashcat**: Potente y optimizado para GPUs, ideal para tareas complejas.
+- **Hydra**: Especializado en ataques dirigidos a servicios como SSH, HTTP, FTP, entre otros.
