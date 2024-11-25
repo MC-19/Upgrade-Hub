@@ -79,3 +79,69 @@ Vulnerability scoring helps assess the potential risk and impact of vulnerabilit
 **Key Takeaway:** CVSS is severity-focused and widely adopted, while VPR is risk-focused and dynamic.
 
 
+
+# Vulnerability Databases: NVD and Exploit-DB
+
+In cybersecurity, applications and services often have different designs and behaviors, leading to unique vulnerabilities. Thankfully, resources exist to track these vulnerabilities for software, operating systems, and more.
+
+## Key Terms
+| Term               | Definition                                                                 |
+|--------------------|---------------------------------------------------------------------------|
+| **Vulnerability**  | A weakness or flaw in the design, implementation, or behavior of a system.|
+| **Exploit**        | An action or behavior that utilizes a vulnerability.                      |
+| **Proof of Concept (PoC)** | A technique or tool demonstrating the exploitation of a vulnerability. |
+
+---
+
+## National Vulnerability Database (NVD)
+- Lists all publicly categorized vulnerabilities as **Common Vulnerabilities and Exposures (CVEs)**.
+- CVEs are formatted as **CVE-YEAR-IDNUMBER** (e.g., CVE-2017-0144 used by WannaCry).
+- Features:
+  - Tracks confirmed CVEs.
+  - Allows filtering by category and submission date.
+  - Example: 223 new CVEs submitted within the first three days of August.
+
+### Limitations:
+- Not ideal for searching vulnerabilities specific to an application or scenario.
+
+---
+
+## Exploit-DB
+- A hacker-focused resource retaining exploits for software and applications.
+- Stores exploits categorized by:
+  - Software name.
+  - Author.
+  - Version.
+- Provides snippets of code (**Proof of Concepts**) for exploiting specific vulnerabilities.
+- More practical for assessments compared to NVD.
+
+---
+
+**Key Takeaway:** Use **NVD** for tracking CVEs and general information, while **Exploit-DB** is ideal for actionable exploits and PoCs for specific software.
+
+
+
+# Demonstrating Vulnerability Exploitation Process
+
+In cybersecurity assessments, combining multiple vulnerabilities often leads to better results. This task demonstrates how to leverage a minor vulnerability to discover and exploit a more valuable one.
+
+## Example Process: Using Version Disclosure
+1. **Version Disclosure**:
+   - Applications often display their version number for support or unintentionally.
+   - Example: An application reveals its name and version as **"Apache Tomcat 9.0.17"**.
+
+2. **Research Using Exploit-DB**:
+   - With the version information in hand, use **Exploit-DB** to search for relevant exploits.
+   - For **Apache Tomcat 9.0.17**, the search may yield **five potential exploits**.
+
+---
+
+## Key Insights:
+- Combining vulnerabilities is a common practice for effective assessments.
+- Version information is a valuable starting point for identifying exploitable vulnerabilities.
+- **Exploit-DB** is an essential tool for finding and leveraging specific exploits.
+
+---
+
+**Takeaway**: Always start by identifying minor vulnerabilities, such as version disclosure, and use them to uncover more significant exploitation opportunities.
+
