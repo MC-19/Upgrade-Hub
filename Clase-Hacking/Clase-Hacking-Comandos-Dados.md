@@ -253,3 +253,48 @@ hashcat -m 0 -a 0 hash.txt /usr/share/wordlists/rockyou.txt
 - **John the Ripper**: Versátil y compatible con múltiples formatos de hash.
 - **Hashcat**: Potente y optimizado para GPUs, ideal para tareas complejas.
 - **Hydra**: Especializado en ataques dirigidos a servicios como SSH, HTTP, FTP, entre otros.
+
+
+
+# Clase del 25-11-2024
+
+## John the Ripper: The Basics
+
+Los comandos básicos y esenciales de **John the Ripper** fueron explorados durante esta sesión, especialmente en la room de TryHackMe. Este archivo se centra en algunos comandos relevantes de **Nmap** que se vieron durante la clase.
+
+### Comandos de Nmap
+
+A continuación, se listan los comandos de **Nmap** utilizados para explorar servicios específicos en hosts remotos:
+
+#### 1. Escaneo detallado de servicios abiertos
+```bash
+nmap -vv -sV --open [IP]
+```
+- **-vv**: Incrementa el nivel de detalle (verbose) para proporcionar más información durante el escaneo.
+- **-sV**: Detecta versiones de los servicios en los puertos abiertos.
+- **--open**: Solo muestra los puertos que están abiertos.
+
+#### 2. Escaneo enfocado en SSH
+```bash
+nmap -vv -sV --script=ssh* -p22 [IP]
+```
+- **--script=ssh***: Ejecuta scripts específicos relacionados con SSH.
+- **-p22**: Escanea únicamente el puerto 22, que es el puerto estándar para SSH.
+
+#### 3. Escaneo enfocado en FTP
+```bash
+nmap -vv -sV --script=ftp-anon.nse -p21 [IP]
+```
+- **--script=ftp-anon.nse**: Utiliza el script `ftp-anon.nse` para verificar si el servidor FTP permite acceso anónimo.
+- **-p21**: Escanea únicamente el puerto 21, estándar para FTP.
+
+### Notas Adicionales
+Estos comandos son muy útiles para obtener información detallada sobre servicios específicos, identificar posibles vulnerabilidades y realizar un análisis inicial en un entorno de pruebas. 
+
+Por ejemplo:
+- El escaneo con el script `ftp-anon.nse` puede revelar si un servidor FTP permite acceso anónimo, lo cual podría ser una vulnerabilidad a explotar.
+- El uso del comodín `ssh*` permite ejecutar múltiples scripts relacionados con SSH para obtener más información.
+
+---
+
+Esta documentación sirve como referencia para los ejercicios prácticos realizados en la clase y puede ampliarse según los resultados obtenidos al usar estos comandos.
