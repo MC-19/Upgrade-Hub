@@ -298,3 +298,9 @@ Por ejemplo:
 ---
 
 Esta documentación sirve como referencia para los ejercicios prácticos realizados en la clase y puede ampliarse según los resultados obtenidos al usar estos comandos.
+
+# Clase del 28-11-2024
+
+Vemos la room de tryhackme de hydra
+
+Para certificaciones mirar el video de esta fecha
