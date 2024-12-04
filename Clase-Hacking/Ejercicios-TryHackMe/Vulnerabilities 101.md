@@ -145,3 +145,6 @@ In cybersecurity assessments, combining multiple vulnerabilities often leads to 
 
 **Takeaway**: Always start by identifying minor vulnerabilities, such as version disclosure, and use them to uncover more significant exploitation opportunities.
 
+
+# Vulnerability Capstone
+
