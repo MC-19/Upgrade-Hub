@@ -884,3 +884,36 @@ Ejercicio
       ```hcxpcapngtool -o pmkid.hc22000  Desktop/cracking_pmkid_question2.cap```
       ```cat Desktop/pmkid.hc22000```
       ```hashcat -a 0 -m 22000 Desktop/pmkid.hc22000 /usr/share/wordlists/rockyou.txt```
+
+
+#Skills Assessment
+   Your colleague performed a successful SQL injection and obtained a hash. You must first identify the hash type and then crack the hash and provide the cleartext value.
+      ```hasid 0c67ac18f50c5e6b9398bfe1dc3e156163ba10ef```
+   What type of hash did your colleague obtain from the SQL injection attack?
+      ```SHA-1```
+   What is the cleartext password for the hash obtained from SQL injection in example 1?
+      ```flower1```
+
+   The cracked hash from the SQL injection attack paid off, and your colleague was able to gain a foothold on the internal network! They have been running the Responder tool and collecting a variety of hashes. They have been unable to perform a successful SMB Relay attack, so they need to obtain the cleartext password to gain a foothold in the Active Directory environment. Crack the provided NetNTLMv2 hash to help them proceed.
+      ```hashcat -a 0 -m 5600 Desktop/hash /usr/share/wordlists/rockyou.txt```
+   What is the cleartext password value for the NetNTLMv2 hash?
+      ```bubbles1```
+
+   Great! Your colleague was able to use the cracked password and perform a Kerberoasting attack. One of the Kerberos TGS tickets retrieved is for a user that is a member of the Local Administrators group on one server. Can you help them crack this hash and move laterally to this server?
+      ```hashcat -a 0 -m 13100 Desktop/hash /usr/share/wordlists/rockyou.txt```
+   Crack the TGS ticket obtained from the Kerberoasting attack.
+      ```p@ssw0rdadmin```
+
+   Your colleague was able to access the server and obtain the local SAM database's contents. One of the hashes is the Domain Cached credentials for a Domain Administrator user. This hash is typically very difficult to crack but, if successful, will grant full administrative control over the entire Active Directory Environment.
+      ```hashcat -a 0 -m 2100 Desktop/hash /usr/share/wordlists/rockyou.txt```
+   What is the cleartext password value for the MS Cache 2 hash?
+      ```welcome1```
+      
+   After cracking the NTLM password hashes contained in the NTDS.dit file, perform an analysis of the results and find out the MOST common password in the INLANEFREIGHT.LOCAL domain.
+   ```hashcat -m 1000 -a 0 --username Desktop/DC01.inlanefreight.local.ntds /usr/share/wordlists/rockyou.txt```
+   ```hashcat --show -m 1000 --username Desktop/DC01.inlanefreight.local.ntds > cracked_results.txt```
+   ```cut -d ':' -f 3 Desktop/cracked_results.txt  > passwords_only.txt```
+   ```sort Desktop/passwords_only.txt | uniq -c | sort -nr | head -n 10```
+   
+   
+   
