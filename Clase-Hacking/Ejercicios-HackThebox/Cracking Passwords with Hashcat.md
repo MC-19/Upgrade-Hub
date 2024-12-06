@@ -77,7 +77,19 @@ Encryption is the process of converting data into an unreadable format to protec
 | **Purpose**     | Verify integrity, store passwords securely.      | Protect data confidentiality during transfer. |
 | **Example**     | MD5, SHA-512, Argon2.                            | AES, RSA, SSL/TLS protocols.                  |
 
+Ejercicio
+   Generate an MD5 hash of the password 'HackTheBox123!'.
+      ```echo -n 'HackTheBox123!' | md5sum```
 
+Ejercicio
+   Create the XOR ciphertext of the password 'opens3same' using the key 'academy'. (Answer format: \x00\x00\x00\....)
+      ```bash
+         >>> from pwn import xor
+         >>> xor("open3same", "academy")
+         b'\x0e\x13\x04\n\x16^\n\x00\x0e\x04'
+      ```
+
+      
 # Identifying Hashes
 
 ## Overview
@@ -199,6 +211,13 @@ By reviewing the [Hashcat example hashes reference](https://hashcat.net/wiki/dok
 3. Context helps narrow down the type of hash and associated cracking methods.
 4. Consult resources like the [Hashcat example hashes reference](https://hashcat.net/wiki/doku.php?id=example_hashes) for additional clarity.
 
+Ejercicio
+   Identify the following hash: $S$D34783772bRXEx1aCsvY.bqgaaSu75XmVlKrW9Du8IQlvxHlmzLc
+      ```
+         Crear el archivo.txt con el hash
+         hashid archivo
+         Drupal > v7.x
+      ```
 
 # Hashcat Overview
 
@@ -389,8 +408,6 @@ Ejercicio
   Crack the following hash using the rockyou.txt wordlist: 0c352d5b2f45217c57bef9f8452ce376
       ```vhashcat -a 0 -m 0 0c352d5b2f45217c57bef9f8452ce376 /usr/share/wordlists/rockyou.txt```
 
-
-
 # Combination Attack
 
 ## Overview
@@ -502,8 +519,6 @@ Combination attacks are another powerful tool to keep in our arsenal. As demonst
 Using the Hashcat combination attack find the cleartext password of the following md5 hash:
   Antes hay que hacer los ficheros que nos manda el ejercicio
     ```└─$ hashcat -a 1 -m 0 combination_md5 wordlist1 wordlist2```
-
-
 
 # Mask Attack
 
@@ -618,8 +633,6 @@ Ejercicio
   Crack the following hash: 978078e7845f2fb2e20399d9e80475bc1c275e06 using the mask ?d?s.
     ```hashcat -a 6 -m 100 978078e7845f2fb2e20399d9e80475bc1c275e06 /usr/share/wordlists/rockyou.txt "?d?s"```
 
-
-  
 # Summary: Creating Custom Wordlists
 
 ## Importance of Custom Wordlists
@@ -717,6 +730,110 @@ Ejercicio
 - Tools like Crunch, CUPP, and PrinceProcessor provide diverse generation methods.
 - CeWL and KWProcessor exploit target-specific patterns and behaviors.
 
+
+# Working with Rules
+
+The rule-based attack is the most advanced and complex password cracking mode. Rules help perform various operations on the input wordlist, such as prefixing, suffixing, toggling case, cutting, reversing, and much more. Rules take mask-based attacks to another level and provide increased cracking rates. Additionally, the usage of rules saves disk space and processing time incurred as a result of larger wordlists.
+
+## Common Rule Functions
+
+A rule can be created using functions, which take a word as input and output its modified version. The following table describes some functions which are compatible with JtR as well as Hashcat.
+
+| Function | Description                                   | Input                 | Output                   |
+|----------|-----------------------------------------------|-----------------------|--------------------------|
+| l        | Convert all letters to lowercase             | InlaneFreight2020     | inlanefreight2020        |
+| u        | Convert all letters to uppercase             | InlaneFreight2020     | INLANEFREIGHT2020        |
+| c / C    | Capitalize / lowercase first letter          | inlaneFreight2020     | Inlanefreight2020        |
+| t / TN   | Toggle case: whole word / at position N      | InlaneFreight2020     | iNLANEfREIGHT2020        |
+| d / q / zN / ZN | Duplicate word / all characters / first character / last character | InlaneFreight2020 | InlaneFreight2020InlaneFreight2020 |
+| { / }    | Rotate word left / right                     | InlaneFreight2020     | nlaneFreight2020I        |
+| ^X / $X  | Prepend / Append character X                 | InlaneFreight2020     | !InlaneFreight2020       |
+| r        | Reverse                                      | InlaneFreight2020     | 0202thgierFenalnI        |
+
+A complete list of functions can be found [here](https://hashcat.net/wiki/). 
+
+## Rejection Rules
+
+- Words of length less than `N` can be rejected with `>N`.
+- Words greater than `N` can be rejected with `<N`.
+
+Rejection rules only work either with `hashcat-legacy` or when using `-j` or `-k` with Hashcat. They will not work as regular rules (in a rule file) with Hashcat.
+
+## Example Rule Creation
+
+Let's create a custom rule for common password behaviors such as:
+- Replacing letters with similar numbers (e.g., "o" → "0").
+- Adding a year at the end of the password.
+
+### Rule File Content
+
+```plaintext
+c so0 si1 se3 ss5 sa@ $2 $0 $1 $9
+```
+
+### Steps:
+1. Save the rule to a file:
+   ```bash
+   echo 'c so0 si1 se3 ss5 sa@ $2 $0 $1 $9' > rule.txt
+   ```
+2. Create a test password file:
+   ```bash
+   echo 'password_ilfreight' > test.txt
+   ```
+3. Debug the rule:
+   ```bash
+   hashcat -r rule.txt test.txt --stdout
+   ```
+
+   **Output:**
+   ```plaintext
+   P@55w0rd_1lfr31ght2019
+   ```
+
+### Hash Cracking Example
+1. Generate a SHA1 hash:
+   ```bash
+   echo -n 'St@r5h1p2019' | sha1sum | awk '{print $1}' | tee hash
+   ```
+2. Crack the hash with the custom rule and `rockyou.txt`:
+   ```bash
+   hashcat -a 0 -m 100 hash /opt/useful/seclists/Passwords/Leaked-Databases/rockyou.txt -r rule.txt
+   ```
+
+   **Output:**
+   ```plaintext
+   08004e35561328e357e34d07c53c7e4f41944e28:St@r5h1p2019
+   ```
+
+## Default Rules
+
+Hashcat installs with a variety of default rules located in the `/usr/share/hashcat/rules/` directory. Examples include:
+- `best64.rule`
+- `d3ad0ne.rule`
+- `rockyou-30000.rule`
+
+Try these default rules before creating custom ones.
+
+## Random Rule Generation
+
+Generate random rules on the fly with the `-g` flag:
+```bash
+hashcat -a 0 -m 100 -g 1000 hash /opt/useful/seclists/Passwords/Leaked-Databases/rockyou.txt
+```
+
+## Publicly Available Rules
+- `nsa-rules`
+- `Hob0Rules`
+- `corporate.rule`
+
+Start with small, targeted wordlists and rule sets for efficiency. Large rule sets and dictionaries require more computational power.
+
+Understanding and leveraging rules can significantly improve cracking rates, saving both time and resources in the process.
+
+Ejercicio
+   Crack the following SHA1 hash using the techniques taught for generating a custom rule: 46244749d1e8fb99c37ad4f14fccb601ed4ae283. Modify the example rule in the beginning of the section to append 2020 to the end of each password attempt.
+      ```echo 'c so0 si1 se3 ss5 sa@ $2 $0 $2 $0' > rule.txt```
+      ```hashcat -a 0 -m 100 Desktop/hash /usr/share/wordlists/rockyou.txt -r rule.txt```
   
 # Summary: Cracking Common Hashes
 
@@ -784,7 +901,9 @@ Ejercicio
 - **Offline Cracking:** Essential for hashes like NetNTLMv2 and NTLM.
 - **Privilege Escalation:** Cracked hashes can often lead to further attacks within a target environment.
 
-
+Ejercicio
+   Crack the following hash: 7106812752615cdfe427e01b98cd4083
+      ```hashcat -a 0 -m 1000 Desktop/hash /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/deadone33```
 
 
 # Cracking Wireless (WPA/WPA2) Handshakes with Hashcat
