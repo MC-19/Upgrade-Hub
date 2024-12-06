@@ -872,4 +872,15 @@ make && make install
 
 ---
 
-By using Hashcat effectively, we can identify weak WPA/WPA2 passwords and improve wireless security.
+By using Hashcat effectively, we can identify weak WPA/WPA2 passwords and improve wireless security.\
+
+EJercicio
+   Perform MIC cracking using the attached .cap file.
+      ```hcxpcapngtool -o output.hc22000 archivo.cap```
+      ```hashcat -a 0 -m 22000 output.hc22000 /usr/share/wordlists/rockyou.txt```
+
+Ejercicio
+   Extract the PMKID hash from the attached .cap file and crack it.
+      ```hcxpcapngtool -o pmkid.hc22000  Desktop/cracking_pmkid_question2.cap```
+      ```cat Desktop/pmkid.hc22000```
+      ```hashcat -a 0 -m 22000 Desktop/pmkid.hc22000 /usr/share/wordlists/rockyou.txt```
