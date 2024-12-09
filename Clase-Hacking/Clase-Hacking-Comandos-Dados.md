@@ -304,3 +304,41 @@ Esta documentación sirve como referencia para los ejercicios prácticos realiza
 Vemos la room de tryhackme de hydra
 
 Para certificaciones mirar el video de esta fecha
+
+# Clase del 02-12-2024
+
+Room TryHackMe blog
+
+Hace un nmap basico ```nmap -vv -sV ip```
+
+Vamos a modificar nuestro dns, para las maquinas de tryhackme, ya que al poner la ip primero intenta buscar el dns de esa ip, pero no tiene ninguno alojado. Y por eso modificamos el DNS, comando a usar el siguientye:
+  ```sudo nano /etc/hosts/```
+
+Luego dentro de el archivo pues modificar y poner la ip con .thm al final, se puede poner cualquier nombre pero no es recomendable, sino buscar primero en esa web a donde hace llamadas normalmente, si  ves mucho ```http://blog.thm``` pues sera a blog, y tambien se encuentra en el nmap
+
+Esto pasara en el ejpt.
+
+Descargamos wappalyzer para ver las versiones y recursos que usa la web
+
+Aparte existe esta otra ```whatweb``` y vemos como se usa asi ```man whatweb```
+
+Tambien estamos probando esta herramienta: ```[https://github.com/GerbenJavado/LinkFinder](url)``` que es igual a las demas, aparte lo explica en el video o en mi word
+
+Usamos el ```sslscan``` solo usarla cuando es https
+
+Aparte usamos ```nikto``` pero no es la mas recomendable
+
+Otra herramienta es ```curl```
+
+Metodo para buscar todos los metodos ```nmap -vv --script http-methods url```
+
+otra herramienta necesaria es fuzzing
+```gobuster dir --url http://blog.thm/ --wordlist /usr/share/wordlists/dirb/big.txt``` lo uncio que hay que cambiar si no encuentras todo es la wordlist
+
+#Recomendado por el profesor: HACER UNA TOOL SHEET DE TODAS LAS HERRAMIENTAS QUE USAS CON SUS COMANDOS Y EXPLICACION UN POCO
+
+```sudo dirsearch -u http://blog.thm/ -w /usr/share/dirbuster/wordlists/directory-list-2.3-medium.txt  -e php,txt,html -f```
+
+el -t son los clicks
+
+Wpscan solo se usa en word press, ya que solo funciona con paginas hechas en word press
