@@ -305,40 +305,115 @@ Vemos la room de tryhackme de hydra
 
 Para certificaciones mirar el video de esta fecha
 
-# Clase del 02-12-2024
 
-Room TryHackMe blog
+# Clase del 02-12-2024: Room TryHackMe - Blog
 
-Hace un nmap basico ```nmap -vv -sV ip```
+## 1. Escaneo Básico con Nmap
+Comando para identificar servicios y versiones en una máquina:
+```bash
+nmap -vv -sV [ip]
+```
 
-Vamos a modificar nuestro dns, para las maquinas de tryhackme, ya que al poner la ip primero intenta buscar el dns de esa ip, pero no tiene ninguno alojado. Y por eso modificamos el DNS, comando a usar el siguientye:
-  ```sudo nano /etc/hosts/```
+## 2. Modificación del Archivo Hosts
+Algunas máquinas de TryHackMe no tienen DNS asociado. Es necesario modificar el archivo `/etc/hosts` para asignar nombres personalizados a las IPs.
 
-Luego dentro de el archivo pues modificar y poner la ip con .thm al final, se puede poner cualquier nombre pero no es recomendable, sino buscar primero en esa web a donde hace llamadas normalmente, si  ves mucho ```http://blog.thm``` pues sera a blog, y tambien se encuentra en el nmap
+- Editar el archivo:
+```bash
+sudo nano /etc/hosts
+```
+- Ejemplo dentro del archivo:
+```plaintext
+10.10.10.10    blog.thm
+```
+> **Nota:** Asigna nombres adecuados basados en resultados de `nmap` o llamadas frecuentes como `http://blog.thm`.
 
-Esto pasara en el ejpt.
+---
 
-Descargamos wappalyzer para ver las versiones y recursos que usa la web
+## 3. Análisis de Tecnologías Web
 
-Aparte existe esta otra ```whatweb``` y vemos como se usa asi ```man whatweb```
+### Wappalyzer
+Extensión de navegador para detectar versiones y tecnologías usadas por una web.
 
-Tambien estamos probando esta herramienta: ```[https://github.com/GerbenJavado/LinkFinder](url)``` que es igual a las demas, aparte lo explica en el video o en mi word
+### WhatWeb
+Herramienta de CLI para analizar tecnologías.
+- Manual de uso:
+```bash
+man whatweb
+```
 
-Usamos el ```sslscan``` solo usarla cuando es https
+---
 
-Aparte usamos ```nikto``` pero no es la mas recomendable
+## 4. Búsqueda de Enlaces con LinkFinder
+Script que busca enlaces dentro del código fuente:
+- Repositorio:
+[LinkFinder - GitHub](https://github.com/GerbenJavado/LinkFinder)
 
-Otra herramienta es ```curl```
+---
 
-Metodo para buscar todos los metodos ```nmap -vv --script http-methods url```
+## 5. Escaneo SSL
+Para webs HTTPS:
+```bash
+sslscan [url]
+```
 
-otra herramienta necesaria es fuzzing
-```gobuster dir --url http://blog.thm/ --wordlist /usr/share/wordlists/dirb/big.txt``` lo uncio que hay que cambiar si no encuentras todo es la wordlist
+---
 
-#Recomendado por el profesor: HACER UNA TOOL SHEET DE TODAS LAS HERRAMIENTAS QUE USAS CON SUS COMANDOS Y EXPLICACION UN POCO
+## 6. Escaneo de Vulnerabilidades Web
 
-```sudo dirsearch -u http://blog.thm/ -w /usr/share/dirbuster/wordlists/directory-list-2.3-medium.txt  -e php,txt,html -f```
+### Nikto
+Escáner básico, aunque no es el más recomendado:
+```bash
+nikto -h [http://url]
+```
 
-el -t son los clicks
+### Curl
+Para interactuar y probar manualmente HTTP:
+```bash
+curl -I [url]  # Ver cabeceras
+```
 
-Wpscan solo se usa en word press, ya que solo funciona con paginas hechas en word press
+### Métodos HTTP con Nmap
+Ver los métodos permitidos en el servidor:
+```bash
+nmap -vv --script http-methods [url]
+```
+
+---
+
+## 7. Fuzzing de Directorios
+
+### Gobuster
+Comando para buscar directorios y archivos:
+```bash
+gobuster dir --url http://blog.thm/ --wordlist /usr/share/wordlists/dirb/big.txt
+```
+
+### Dirsearch
+Escaneo más avanzado con opciones adicionales:
+```bash
+sudo dirsearch -u http://blog.thm/ -w /usr/share/dirbuster/wordlists/directory-list-2.3-medium.txt -e php,txt,html -f
+```
+> **Nota:**  
+- `-u`: URL  
+- `-w`: Wordlist  
+- `-e`: Extensiones a buscar (php, txt, html)  
+- `-f`: Fuerza el escaneo de archivos incluso si no hay respuesta 403.  
+- `-t`: Número de hilos (paralelismo).
+
+---
+
+## 8. Escaneo de WordPress
+Usar **WPScan** exclusivamente en sitios WordPress:
+```bash
+wpscan --url http://blog.thm
+```
+
+---
+
+## Recomendación del Profesor:
+Crea una **Tool Sheet** con todas las herramientas que uses, sus comandos y explicaciones breves para facilitar el estudio.
+
+---
+
+**Fin del documento**
+
