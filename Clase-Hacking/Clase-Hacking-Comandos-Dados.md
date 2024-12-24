@@ -415,5 +415,21 @@ Crea una **Tool Sheet** con todas las herramientas que uses, sus comandos y expl
 
 ---
 
-**Fin del documento**
+Clase dia 09-12-2024
 
+instalamos zaproxy en kali con sudo apt install zaproxy
+
+Usamos zaproxy, pero usaremos burpsuite
+
+Hacer certificado de burpsuite para quedar mejor para las empresas. Tambien compia security+, Cysa no sabe el profesor mucho de esta.
+
+Burpsuite es como un proxy para ver lo que va a la maquina atacada, o eso entiendo
+
+para empezar a usar burpsuite:
+
+1- ir a proxy y abrir proxy settings
+2- Instalar foxy proxy en el navegador
+3- configurar foxyproxy con la ip y puerto de burpsuite desde options
+4- Volver a burpsuoite y hacer un scope ![image](https://github.com/user-attachments/assets/7bf5e699-d736-4d0f-a20c-27d2c2313fab)
+5- Tambien mirar la guia de burpsuite del profesor
+6- Descargar el certidficado de burpsuite y agregarlo a los ajustes del navegador 
