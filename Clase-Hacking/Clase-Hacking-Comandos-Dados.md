@@ -415,21 +415,100 @@ Crea una **Tool Sheet** con todas las herramientas que uses, sus comandos y expl
 
 ---
 
-Clase dia 09-12-2024
+# Notas de la Clase (09-12-2024)
 
-instalamos zaproxy en kali con sudo apt install zaproxy
+## Instalación de ZAP Proxy en Kali
 
-Usamos zaproxy, pero usaremos burpsuite
+```bash
+sudo apt install zaproxy
+```
 
-Hacer certificado de burpsuite para quedar mejor para las empresas. Tambien compia security+, Cysa no sabe el profesor mucho de esta.
+Aunque usamos ZAP Proxy, trabajaremos principalmente con **Burp Suite**.
 
-Burpsuite es como un proxy para ver lo que va a la maquina atacada, o eso entiendo
+- **Recomendación:** Obtener la certificación de Burp Suite para destacar profesionalmente.
+- **Certificaciones relacionadas:**
+  - Security+ (recomendada por el profesor)
+  - CySA+ (el profesor no tiene mucha información sobre esta).
 
-para empezar a usar burpsuite:
+---
 
-1- ir a proxy y abrir proxy settings
-2- Instalar foxy proxy en el navegador
-3- configurar foxyproxy con la ip y puerto de burpsuite desde options
-4- Volver a burpsuoite y hacer un scope ![image](https://github.com/user-attachments/assets/7bf5e699-d736-4d0f-a20c-27d2c2313fab)
-5- Tambien mirar la guia de burpsuite del profesor
-6- Descargar el certidficado de burpsuite y agregarlo a los ajustes del navegador 
+## Burp Suite: Introducción
+
+Burp Suite actúa como un proxy que intercepta y analiza el tráfico hacia la máquina objetivo.
+
+### Pasos para empezar a usar Burp Suite
+
+1. **Abrir las configuraciones del proxy:**
+   - Ir a `Proxy` > `Proxy Settings`.
+2. **Instalar FoxyProxy en el navegador.**
+   - Configurar FoxyProxy con la IP y puerto de Burp Suite desde `Options`.
+3. **Definir un scope en Burp Suite.**
+   - [Ejemplo visual](https://github.com/user-attachments/assets/7bf5e699-d736-4d0f-a20c-27d2c2313fab)
+4. **Descargar el certificado de Burp Suite:**
+   - Agregarlo a los ajustes del navegador.
+5. **Consultar la guía del profesor sobre Burp Suite.**
+6. **Explorar y "jugar" con Burp Suite para aprender sus funcionalidades.**
+
+---
+
+## Room: Blog (TryHackMe)
+
+Para realizar un ataque de fuerza bruta en una web, las herramientas recomendadas son:
+
+1. **Hydra**
+2. **Burp Suite**
+3. **WPScan** (especialmente para WordPress)
+
+### Comandos utilizados
+
+- **Comando 1:** Buscar vulnerabilidades
+
+  ```bash
+  wpscan --url http://blog.thm
+  ```
+
+- **Comando 2:** Enumerar usuarios
+
+  ```bash
+  wpscan --url http://blog.thm -e u
+  ```
+
+- **Comando 3:** Fuerza bruta para WordPress
+
+  ```bash
+  wpscan --url http://blog.thm/wp-login.php --usernames bjoel --passwords /usr/share/wordlists/rockyou.txt --max-threads 5
+  ```
+  > **Nota:** El parámetro `--max-threads` no es obligatorio en este caso.
+
+- Una vez encontrada la contraseña, acceder al panel de login de WordPress.
+
+---
+
+## Room: DVWA (Damn Vulnerable Web Application)
+
+1. **Definir el scope:**
+   - Configurar la IP de la máquina objetivo en Burp Suite.
+
+2. **Escaneo inicial con Nmap:**
+
+   ```bash
+   nmap -vv -sV [IP]
+   ```
+
+3. **Acceso a la web:**
+   - Entrar a la dirección IP de la máquina objetivo y configurar el nivel de seguridad en **"Bajo"** por el momento.
+
+4. **Forzar errores:**
+   - Generar un error en la web para que Burp Suite intercepte las respuestas. Esto permitirá capturar las solicitudes (requests) y respuestas (responses) necesarias.
+
+5. **Enviar la request a Intruder:**
+   - Configurar el ataque en Intruder.
+   - Los métodos más comunes son:
+     - **Sniper**
+     - **Cluster Bomb** (utilizaremos este).
+
+6. **Configurar Cluster Bomb:**
+   - Atacar tanto usuario como contraseña.
+   - Seleccionar y añadir los parámetros correspondientes.
+
+---
