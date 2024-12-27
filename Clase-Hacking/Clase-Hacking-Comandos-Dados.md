@@ -596,3 +596,105 @@ Para realizar un ataque de fuerza bruta en una web, las herramientas recomendada
 3. Modificar la solicitud desde Burp Suite antes de enviarla, estableciendo una contraseña personalizada.
 
 ---
+
+
+# Notas de la Clase (16-12-2024)
+
+## Ataques de File Inclusion (LFI y RFI)
+
+### LFI (Local File Inclusion)
+
+1. **Ubicación de directorios web:**
+   - **Windows:** `C:\inetpub\wwwroot\`
+   - **Linux:** `/var/www/`
+2. Si no está correctamente configurado, al abrir un archivo desde la URL se puede realizar una inclusión de archivos locales. Ejemplo:
+
+   ```
+   http://10.10.180.63/vulnerabilities/fi/?page=../../../../../etc/passwd/
+   ```
+   - Esto permite explorar directorios y visualizar archivos.
+
+3. Solo se pueden acceder a los archivos permitidos por el usuario `www-data` (usuario creado al instalar la web).
+4. Para avanzar hacia un RCE (Remote Code Execution), seguir los pasos indicados en [este tutorial](https://ironhackers.es/tutoriales/lfi-to-rce-envenenando-ssh-y-apache-logs/) utilizando Burp Suite.
+
+---
+
+### RFI (Remote File Inclusion)
+
+1. **Ubicación de directorios web:**
+   - **Windows:** `C:\inetpub\wwwroot\`
+   - **Linux:** `/var/www/`
+2. Si no está correctamente configurado, se puede incluir archivos remotos. Ejemplo:
+
+   ```
+   http://10.10.180.63/vulnerabilities/fi/?page=url
+   ```
+
+3. Crear un servidor HTTP en la carpeta donde tengas los scripts. Por ejemplo, en:
+
+   ```bash
+   cd /home/kali/Downloads/
+   python -m http.server 8080
+   ```
+
+4. En la URL del paso anterior, incluir el servidor HTTP creado con Python. 
+   - Como auditor, puedes cargar un script para obtener acceso en lugar de un exploit malicioso.
+
+5. Buscar una reverse shell en PHP, copiar el código o descargarlo.
+   - Crear un archivo `.php` y modificar los parámetros necesarios.
+
+6. Dar permisos de ejecución al archivo si es necesario.
+7. Abrir el puerto configurado en el archivo con:
+
+   ```bash
+   nc -lvnp [puerto]
+   ```
+
+8. Ejecutar el script desde la URL para establecer la conexión.
+
+**Resultado:** Ambos modos (LFI y RFI) pueden derivar en un RCE o una reverse shell.
+
+---
+
+## File Upload
+
+### File Upload Low
+
+1. Subir un archivo a la aplicación.
+2. Dependiendo de la configuración de seguridad, puede mostrarse la URL donde se guardó el archivo.
+3. Copiar esa ruta y modificarla en la URL para explorar toda la estructura de archivos.
+4. Subir otro script como en los casos de LFI o RFI para obtener acceso adicional.
+
+### File Upload Medio
+
+1. Configurar Burp Suite y activar el intercept.
+2. Subir el archivo deseado.
+3. Mientras el archivo está en espera, modificar su extensión (por ejemplo, cambiar de `.php` al formato requerido y luego devolverlo a `.php`).
+4. Enviar la solicitud modificada con `Forward` para completar el proceso y subir el archivo a la web.
+
+### File Upload High
+
+1. *(Falta completar detalles en esta sección)*
+
+---
+
+## SQL Injection
+
+### SQL Injection Low
+
+1. Realizar una búsqueda introduciendo una comilla simple (`'`).
+   - Si se genera un error, indica que hay vulnerabilidad de SQL Injection.
+2. Probar payloads como:
+
+   ```sql
+   ' OR '1'='1
+   OR 1=1 --
+   ```
+
+3. Usar herramientas como **sqlmap** para automatizar el ataque:
+
+   ```bash
+   sqlmap -u "http://[url]/vulnerable-page" --dbs
+   ```
+
+---
