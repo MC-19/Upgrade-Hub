@@ -698,3 +698,65 @@ Para realizar un ataque de fuerza bruta en una web, las herramientas recomendada
    ```
 
 ---
+
+
+# Notas de la Clase (19-12-2024)
+
+## Instalación de Tor
+
+```bash
+sudo apt update 
+sudo apt install tor 
+sudo apt install tor torbrowser-launcher -y
+```
+
+## Arrancar y comprobar el servicio de Tor
+
+```bash
+sudo service tor start 
+sudo service tor status
+```
+
+## Configuración de Proxychains
+Para dirigir el tráfico a través de Tor y evitar que nuestra IP real sea conocida:
+
+1. Editar el archivo de configuración de Proxychains:
+
+   ```bash
+   sudo nano /etc/proxychains.conf
+   ```
+
+2. Realizar los siguientes cambios:
+
+   - Borrar el símbolo `#` de la línea `#dynamic_chain`
+   - Comentar con un `#` la línea `strict_chain`
+   - Añadir al final del archivo:
+     ```
+     socks5 127.0.0.1 9050
+     ```
+
+3. Reiniciar el equipo:
+
+   ```bash
+   sudo reboot
+   ```
+
+## Uso de Proxychains para anonimato
+Para garantizar el anonimato al realizar acciones:
+
+```bash
+sudo proxychains nmap -vv -sT -Pn -n -sV -O <IP>
+sudo proxychains dirb <HOST> <WORDLISTS>
+sudo proxychains firefox https://www.upgradehub.com/
+sudo proxychains nikto -h <HOST>
+```
+
+### Recomendaciones adicionales
+
+- **Abrir todo desde Proxychains**: Para garantizar el uso del anonimato.
+- **Uso de VPN antes de Tor**: Añadir una VPN antes de utilizar Tor para mayor privacidad.
+- **Cambiar el DNS**: Evitar que el DNS deje rastros de tu router. Configuración en Firefox:
+  
+  1. Acceder a `about:config` en la barra de direcciones.
+  2. Buscar `media.peerconnection.enabled`.
+  3. Cambiar su valor a `off`.
