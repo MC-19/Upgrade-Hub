@@ -82,7 +82,7 @@ The target system’s environment will influence the tool you will be able to us
 
 ---
 
-Privilege Escalation: Kernel Exploits
+# Privilege Escalation: Kernel Exploits
 
 Privilege escalation ideally leads to root privileges. This can sometimes be achieved simply by exploiting an existing vulnerability, or in some cases by accessing another user account that has more privileges, information, or access.
 
@@ -112,3 +112,4 @@ Although it looks simple, please remember that a failed kernel exploit can lead 
 - You can transfer the exploit code from your machine to the target system using the SimpleHTTPServer Python module and wget respectively.
 
 ---
+
