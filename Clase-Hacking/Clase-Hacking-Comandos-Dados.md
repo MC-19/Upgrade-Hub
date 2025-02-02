@@ -1092,3 +1092,7 @@ copy \\IP\recurso
 
 - Completar la room: [Windows 10 Privilege Escalation](https://tryhackme.com/r/room/windows10privesc).
 - Revisar el video de la clase si es necesario.
+
+
+# Notas de la Clase (27-01-2025) Pivoting
+
