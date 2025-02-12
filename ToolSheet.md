@@ -64,4 +64,156 @@ Proceso de identificación de servicios, puertos y usuarios en el sistema objeti
 
 ---
 
-Este documento proporciona una base sólida para el pentesting. Si quieres añadir más herramientas o afinar la información en algún aspecto, dime y lo ajustamos.
+# Nmap Cheatsheet
+
+## Nmap - Trace the Packets
+```bash
+nmap --traceroute 192.168.1.1
+```
+
+## Connect Scan
+```bash
+nmap -sT 192.168.1.1
+```
+
+## Filtered Ports
+```bash
+nmap -p 22,80,443 --open 192.168.1.1
+```
+
+## Discovering Open UDP Ports
+```bash
+nmap -sU -p- 192.168.1.1
+```
+
+## Version Scan
+```bash
+nmap -sV 192.168.1.1
+```
+
+## Saving the Results
+```bash
+nmap -oN output.txt 192.168.1.1
+nmap -oX output.xml 192.168.1.1
+```
+
+## Service Version Detection
+```bash
+nmap -sV 192.168.1.1
+```
+
+## Banner Grabbing
+```bash
+nmap -sV --script=banner 192.168.1.1
+```
+
+## Tcpdump
+```bash
+tcpdump -i eth0
+```
+
+## Nc (Netcat)
+```bash
+nc -zv 192.168.1.1 22-443
+```
+
+## Tcpdump - Intercepted Traffic
+```bash
+tcpdump -i eth0 port 80
+```
+
+## Nmap Scripting Engine
+```bash
+nmap --script=vuln 192.168.1.1
+```
+
+## Specific Scripts Category
+```bash
+nmap --script=auth 192.168.1.1
+```
+
+## Nmap - Specifying Scripts
+```bash
+nmap --script=http-title 192.168.1.1
+```
+
+## Nmap - Aggressive Scan
+```bash
+nmap -A 192.168.1.1
+```
+
+## Nmap - Vuln Category
+```bash
+nmap --script=vulners 192.168.1.1
+```
+
+## Timing and Optimization
+```bash
+nmap -T4 192.168.1.1
+nmap --max-retries 2 192.168.1.1
+```
+
+## SYN-Scan
+```bash
+nmap -sS 192.168.1.1
+```
+
+## ACK-Scan
+```bash
+nmap -sA 192.168.1.1
+```
+
+## Detect IDS/IPS
+```bash
+nmap -sS --scan-delay 500ms 192.168.1.1
+```
+
+## Decoys
+```bash
+nmap -D RND:10 192.168.1.1
+```
+
+## Scan by Using Decoys
+```bash
+nmap -D 192.168.1.2,192.168.1.3,ME 192.168.1.1
+```
+
+## Testing Firewall Rule
+```bash
+nmap -p 80 --badsum 192.168.1.1
+```
+
+## Scan by Using Different Source IP
+```bash
+nmap --source-port 53 192.168.1.1
+```
+
+## DNS Proxying
+```bash
+nmap --dns-servers 8.8.8.8 192.168.1.1
+```
+
+## SYN-Scan of a Filtered Port
+```bash
+nmap -sS -p 443 192.168.1.1
+```
+
+## SYN-Scan From DNS Port
+```bash
+nmap -sS --source-port 53 192.168.1.1
+```
+
+## Connect To The Filtered Port
+```bash
+nmap -sT -p 443 192.168.1.1
+```
+
+
+
+
+
+
+
+
+
+
